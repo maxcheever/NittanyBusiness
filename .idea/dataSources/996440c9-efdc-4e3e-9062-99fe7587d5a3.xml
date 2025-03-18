@@ -499,7 +499,7 @@
     </routine>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-03-18.21:50:55</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-03-18.23:34:23</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1590,36 +1590,555 @@
     <argument id="554" parent="190">
       <Position>1</Position>
     </argument>
-    <table id="555" parent="191" name="sqlite_master">
+    <table id="555" parent="191" name="Address"/>
+    <table id="556" parent="191" name="Buyers"/>
+    <table id="557" parent="191" name="CategoryHierarchy"/>
+    <table id="558" parent="191" name="HelpDesk"/>
+    <table id="559" parent="191" name="Orders"/>
+    <table id="560" parent="191" name="PaymentDetails"/>
+    <table id="561" parent="191" name="Product"/>
+    <table id="562" parent="191" name="Reviews"/>
+    <table id="563" parent="191" name="Sellers"/>
+    <table id="564" parent="191" name="ShoppingCart"/>
+    <table id="565" parent="191" name="Users"/>
+    <table id="566" parent="191" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="556" parent="191" name="sqlite_sequence">
+    <table id="567" parent="191" name="sqlite_sequence">
       <System>1</System>
     </table>
-    <column id="557" parent="555" name="type">
+    <column id="568" parent="555" name="address_id">
       <Position>1</Position>
-      <StoredType>TEXT|0s</StoredType>
+      <StoredType>VARCHAR(255)|0s</StoredType>
     </column>
-    <column id="558" parent="555" name="name">
+    <column id="569" parent="555" name="street">
+      <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="570" parent="555" name="city">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="571" parent="555" name="state">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="572" parent="555" name="zipcode">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>VARCHAR(20)|0s</StoredType>
+    </column>
+    <index id="573" parent="555" name="sqlite_autoindex_Address_1">
+      <ColNames>address_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="574" parent="555">
+      <ColNames>address_id</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_Address_1</UnderlyingIndexName>
+    </key>
+    <column id="575" parent="556" name="user_id">
+      <Position>1</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="576" parent="556" name="business_name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="577" parent="556" name="credit_card_info">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <foreign-key id="578" parent="556">
+      <ColNames>user_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="579" parent="556">
+      <ColNames>credit_card_info</ColNames>
+      <RefColNames>payment_id</RefColNames>
+      <RefTableName>PaymentDetails</RefTableName>
+    </foreign-key>
+    <index id="580" parent="556" name="sqlite_autoindex_Buyers_1">
+      <ColNames>user_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="581" parent="556">
+      <ColNames>user_id</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_Buyers_1</UnderlyingIndexName>
+    </key>
+    <column id="582" parent="557" name="category_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="583" parent="557" name="name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(100)|0s</StoredType>
+    </column>
+    <column id="584" parent="557" name="parent_category">
+      <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <foreign-key id="585" parent="557">
+      <ColNames>parent_category</ColNames>
+      <RefColNames>category_id</RefColNames>
+      <RefTableName>CategoryHierarchy</RefTableName>
+    </foreign-key>
+    <index id="586" parent="557" name="sqlite_autoindex_CategoryHierarchy_1">
+      <ColNames>name</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="587" parent="557">
+      <ColNames>category_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <key id="588" parent="557">
+      <ColNames>name</ColNames>
+      <UnderlyingIndexName>sqlite_autoindex_CategoryHierarchy_1</UnderlyingIndexName>
+    </key>
+    <check id="589" parent="558">
+      <Predicate>request_type IN (&apos;Role Conversion&apos;, &apos;New Category&apos;, &apos;ID Change&apos;, &apos;Other&apos;)</Predicate>
+    </check>
+    <check id="590" parent="558">
+      <Predicate>status IN (&apos;Pending&apos;, &apos;Approved&apos;, &apos;Rejected&apos;)</Predicate>
+    </check>
+    <column id="591" parent="558" name="request_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="592" parent="558" name="requester_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="593" parent="558" name="request_type">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="594" parent="558" name="details">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="559" parent="555" name="tbl_name">
+    <column id="595" parent="558" name="status">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="596" parent="558" name="timestamp">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>DATETIME|0s</StoredType>
+    </column>
+    <column id="597" parent="558" name="helpdesk_staff_email">
+      <Position>7</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <foreign-key id="598" parent="558">
+      <ColNames>requester_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <key id="599" parent="558">
+      <ColNames>request_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="600" parent="559">
+      <Predicate>amount &gt; 0</Predicate>
+    </check>
+    <check id="601" parent="559">
+      <Predicate>quantity &gt; 0</Predicate>
+    </check>
+    <check id="602" parent="559">
+      <Predicate>status IN (&apos;Completed&apos;, &apos;Canceled&apos;, &apos;Pending&apos;)</Predicate>
+    </check>
+    <column id="603" parent="559" name="order_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="604" parent="559" name="buyer_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="605" parent="559" name="seller_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="606" parent="559" name="product_id">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="607" parent="559" name="order_date">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>DATETIME|0s</StoredType>
+    </column>
+    <column id="608" parent="559" name="quantity">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="609" parent="559" name="amount">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>DECIMAL(10,2)|0s</StoredType>
+    </column>
+    <column id="610" parent="559" name="status">
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <foreign-key id="611" parent="559">
+      <ColNames>buyer_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="612" parent="559">
+      <ColNames>seller_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="613" parent="559">
+      <ColNames>product_id</ColNames>
+      <RefColNames>product_id</RefColNames>
+      <RefTableName>Product</RefTableName>
+    </foreign-key>
+    <key id="614" parent="559">
+      <ColNames>order_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="615" parent="560">
+      <Predicate>card_type IN (&apos;Visa&apos;, &apos;MasterCard&apos;, &apos;Discover&apos;)</Predicate>
+    </check>
+    <column id="616" parent="560" name="payment_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="617" parent="560" name="user_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="618" parent="560" name="card_type">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="619" parent="560" name="card_number">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>VARCHAR(100)|0s</StoredType>
+    </column>
+    <column id="620" parent="560" name="expiration_date">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>DATE|0s</StoredType>
+    </column>
+    <foreign-key id="621" parent="560">
+      <ColNames>user_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <key id="622" parent="560">
+      <ColNames>payment_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="623" parent="561">
+      <Predicate>price &gt; 0</Predicate>
+    </check>
+    <check id="624" parent="561">
+      <Predicate>quantity &gt;= 0</Predicate>
+    </check>
+    <column id="625" parent="561" name="product_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="626" parent="561" name="title">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="627" parent="561" name="details">
+      <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="560" parent="555" name="rootpage">
+    <column id="628" parent="561" name="price">
+      <NotNull>1</NotNull>
       <Position>4</Position>
-      <StoredType>INT|0s</StoredType>
+      <StoredType>REAL|0s</StoredType>
     </column>
-    <column id="561" parent="555" name="sql">
+    <column id="629" parent="561" name="quantity">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="630" parent="561" name="seller_id">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="631" parent="561" name="category_id">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="632" parent="561" name="created_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>8</Position>
+      <StoredType>DATETIME|0s</StoredType>
+    </column>
+    <foreign-key id="633" parent="561">
+      <ColNames>seller_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="634" parent="561">
+      <ColNames>category_id</ColNames>
+      <RefColNames>category_id</RefColNames>
+      <RefTableName>CategoryHierarchy</RefTableName>
+    </foreign-key>
+    <key id="635" parent="561">
+      <ColNames>product_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="636" parent="562">
+      <Predicate>rating BETWEEN 1 AND 5</Predicate>
+    </check>
+    <column id="637" parent="562" name="review_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="638" parent="562" name="buyer_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="639" parent="562" name="product_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="640" parent="562" name="review_text">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="641" parent="562" name="rating">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="642" parent="562" name="timestamp">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>DATETIME|0s</StoredType>
+    </column>
+    <foreign-key id="643" parent="562">
+      <ColNames>buyer_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="644" parent="562">
+      <ColNames>product_id</ColNames>
+      <RefColNames>product_id</RefColNames>
+      <RefTableName>Product</RefTableName>
+    </foreign-key>
+    <key id="645" parent="562">
+      <ColNames>review_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="646" parent="563" name="user_id">
+      <Position>1</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="647" parent="563" name="business_name">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="648" parent="563" name="business_address">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="649" parent="563" name="business_phone">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="650" parent="563" name="bank_routing_number">
+      <NotNull>1</NotNull>
       <Position>5</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="562" parent="556" name="name">
+    <column id="651" parent="563" name="bank_account_number">
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="652" parent="563" name="balance">
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+      <StoredType>REAL|0s</StoredType>
+    </column>
+    <foreign-key id="653" parent="563">
+      <ColNames>user_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="654" parent="563">
+      <ColNames>business_address</ColNames>
+      <RefColNames>address_id</RefColNames>
+      <RefTableName>Address</RefTableName>
+    </foreign-key>
+    <index id="655" parent="563" name="sqlite_autoindex_Sellers_1">
+      <ColNames>user_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="656" parent="563">
+      <ColNames>user_id</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_Sellers_1</UnderlyingIndexName>
+    </key>
+    <check id="657" parent="564">
+      <Predicate>quantity &gt; 0</Predicate>
+    </check>
+    <column id="658" parent="564" name="cart_id">
+      <AutoIncrement>1</AutoIncrement>
+      <Position>1</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="659" parent="564" name="buyer_id">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="660" parent="564" name="product_id">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="661" parent="564" name="quantity">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="662" parent="564" name="added_at">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>DATETIME|0s</StoredType>
+    </column>
+    <foreign-key id="663" parent="564">
+      <ColNames>buyer_id</ColNames>
+      <RefColNames>user_id</RefColNames>
+      <RefTableName>Users</RefTableName>
+    </foreign-key>
+    <foreign-key id="664" parent="564">
+      <ColNames>product_id</ColNames>
+      <RefColNames>product_id</RefColNames>
+      <RefTableName>Product</RefTableName>
+    </foreign-key>
+    <key id="665" parent="564">
+      <ColNames>cart_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <check id="666" parent="565">
+      <Predicate>role IN (&apos;Buyer&apos;, &apos;Seller&apos;, &apos;HelpDesk&apos;)</Predicate>
+    </check>
+    <column id="667" parent="565" name="user_id">
+      <Position>1</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="668" parent="565" name="password">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="669" parent="565" name="role">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <column id="670" parent="565" name="name">
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+      <StoredType>VARCHAR(255)|0s</StoredType>
+    </column>
+    <column id="671" parent="565" name="address_id">
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+      <StoredType>INTEGER|0s</StoredType>
+    </column>
+    <column id="672" parent="565" name="phone">
+      <Position>6</Position>
+      <StoredType>VARCHAR(50)|0s</StoredType>
+    </column>
+    <foreign-key id="673" parent="565">
+      <ColNames>address_id</ColNames>
+      <RefColNames>address_id</RefColNames>
+      <RefTableName>Address</RefTableName>
+    </foreign-key>
+    <index id="674" parent="565" name="sqlite_autoindex_Users_1">
+      <ColNames>user_id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="675" parent="565">
+      <ColNames>user_id</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_Users_1</UnderlyingIndexName>
+    </key>
+    <column id="676" parent="566" name="type">
+      <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="677" parent="566" name="name">
+      <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="678" parent="566" name="tbl_name">
+      <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="679" parent="566" name="rootpage">
+      <Position>4</Position>
+      <StoredType>INT|0s</StoredType>
+    </column>
+    <column id="680" parent="566" name="sql">
+      <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
+    </column>
+    <column id="681" parent="567" name="name">
       <Position>1</Position>
     </column>
-    <column id="563" parent="556" name="seq">
+    <column id="682" parent="567" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

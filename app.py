@@ -17,12 +17,15 @@ def index():
 def initialize_database():
     create_tables()
 
-    # making these gloabl so they can be used to populate Users (see rational above load_buyers_info)
-    global buyers_info, sellers_info
+    # making these gloabl so they can be used to populate Users and Address (see rationale above load_buyers_info)
+    global buyers_info, sellers_info, zipcode_dict
     buyers_info = load_buyers_info()
     sellers_info = load_sellers_info()
+    zipcode_dict = load_zipcode_info()
 
     populate_table_from_csv('Users', './NittanyBusinessDataset_v3/Users.csv', transform_func=transform_user_row)
+    populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
+
 
 ########## CREATE TABLES ##########
 
@@ -50,7 +53,7 @@ def create_tables():
     # Table 2: Address
     cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Address (
-                    address_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    address_id VARCHAR(255) PRIMARY KEY,
                     street VARCHAR(255) NOT NULL,
                     city VARCHAR(50) NOT NULL,
                     state VARCHAR(50) NOT NULL,
@@ -245,6 +248,19 @@ def load_sellers_info():
             info[email] = (business_name, business_address)
     return info
 
+def load_zipcode_info():
+    """
+    Load zipcode info from Zipcode_Info.csv.
+    """
+    zipcode_dict = {}
+    with open('./NittanyBusinessDataset_v3/Zipcode_Info.csv', 'r', newline='') as file:
+        reader = csv.reader(file)
+        next(reader)  # skip header
+        for row in reader:
+            zipcode, city, state = row
+            zipcode_dict[zipcode.strip()] = (city.strip(), state.strip())
+    return zipcode_dict
+
 ########## ROW GENERATING FUNCTIONS ##########
 
 def transform_user_row(row):
@@ -282,6 +298,20 @@ def transform_user_row(row):
 def hash_password(password):
     """ hash password """
     return hashlib.sha256(password.encode()).hexdigest()
+
+def transform_address_row(row):
+    """
+    Transform Address.csv row into (address_id, street, city, state, zipcode).
+    Expected Address.csv columns: address_id, zipcode, street_num, street_name.
+    Uses Zipcode_Info.csv to get city and state.
+    """
+    zipcode = row[1].strip()
+    street = f"{row[2].strip()} {row[3].strip()}"
+    if zipcode in zipcode_dict:
+        city, state = zipcode_dict[zipcode]
+    else:
+        city, state = 'Unknown', 'Unknown'
+    return [row[0].strip(), street, city, state, zipcode]
 
 
 if __name__ == "__main__":
