@@ -25,6 +25,7 @@ def initialize_database():
 
     populate_table_from_csv('Users', './NittanyBusinessDataset_v3/Users.csv', transform_func=transform_user_row)
     populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
+    populate_table_from_csv('Buyers', './NittanyBusinessDataset_v3/Buyers.csv')
 
 
 ########## CREATE TABLES ##########
@@ -66,9 +67,9 @@ def create_tables():
                 CREATE TABLE IF NOT EXISTS Buyers (
                     user_id VARCHAR(255) PRIMARY KEY,
                     business_name VARCHAR(255) NOT NULL,
-                    credit_card_info INTEGER NOT NULL,
+                    buyer_address_id VARCHAR(255) NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES Users(user_id),
-                    FOREIGN KEY (credit_card_info) REFERENCES PaymentDetails(payment_id)
+                    FOREIGN KEY (buyer_address_id) REFERENCES Address(address_id)
                 )
             ''')
 
