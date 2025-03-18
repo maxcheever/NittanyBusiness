@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request
 import sqlite3 as sql
+import csv
+import hashlib
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -18,6 +21,8 @@ def initialize_database():
     global buyers_info, sellers_info
     buyers_info = load_buyers_info()
     sellers_info = load_sellers_info()
+
+    populate_table_from_csv('Users', './NittanyBusinessDataset_v3/Users.csv', transform_func=transform_user_row)
 
 ########## CREATE TABLES ##########
 
@@ -180,13 +185,12 @@ def create_tables():
 
 ########## POPULATE TABLES ##########
 
-def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=False):
+def populate_table_from_csv(table_name, csv_file, transform_func=None):
     """
         Generic function to populate a table from a CSV file.
         Takes table name, csv file name, and uses transform_func to populate row
-        If hash_pwd is True, the second column is a password to hash (from Users.csv).
     """
-    connection = sqlite3.connect('database.db')
+    connection = sql.connect('database.db')
     cursor = connection.cursor()
 
     with open(csv_file, 'r', newline='') as file:
@@ -195,8 +199,6 @@ def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=
         for row in reader:
             if transform_func:
                 row = transform_func(row)
-            if hash_pwd:
-                row[1] = hash_password(row[1])
             placeholders = ', '.join('?' * len(row))
             query = f'INSERT INTO {table_name} VALUES ({placeholders})'
             cursor.execute(query, row)
@@ -216,9 +218,9 @@ def load_buyers_info():
     Load buyer info from Buyers.csv.
     """
     info = {}
-    with open('Buyers.csv', 'r', newline='') as file:
+    with open('./NittanyBusinessDataset_v3/Buyers.csv', 'r', newline='') as file:
         reader = csv.reader(file)
-        next(reader)  # Skip header
+        next(reader)  # skip header
         for row in reader:
             email = row[0].strip()
             business_name = row[1].strip()
@@ -231,9 +233,9 @@ def load_sellers_info():
     Load seller info from Sellers.csv.
     """
     info = {}
-    with open('Sellers.csv', 'r', newline='') as file:
+    with open('./NittanyBusinessDataset_v3/Sellers.csv', 'r', newline='') as file:
         reader = csv.reader(file)
-        next(reader)  # Skip header
+        next(reader)  # skip header
         for row in reader:
             email = row[0].strip()
             business_name = row[1].strip()
@@ -242,6 +244,44 @@ def load_sellers_info():
             # for Users we only need name and address_id.
             info[email] = (business_name, business_address)
     return info
+
+########## ROW GENERATING FUNCTIONS ##########
+
+def transform_user_row(row):
+    """
+    Transform a Users.csv row into a Users table row.
+    Expected Users.csv columns: email, password
+    If the email exists in Buyers or Sellers info, use that data,
+    otherwise, default to:
+      - role: 'Buyer'
+      - name: portion before '@'
+      - address_id: 1 (ensure a default address exists)
+      - phone: None
+    """
+    email = row[0].strip()
+    pwd = row[1].strip()
+    hashed = hash_password(pwd)
+
+    # check if user exists in sellers or buyers info
+    if email in sellers_info:
+        role = 'Seller'
+        name, address_id = sellers_info[email]
+        phone = None
+    elif email in buyers_info:
+        role = 'Buyer'
+        name, address_id = buyers_info[email]
+        phone = None
+    else: # if neither, generate defaults
+        role = 'Buyer'
+        name = email.split('@')[0] if '@' in email else email
+        address_id = 1  # default address_id; ensure a default exists
+        phone = None
+
+    return [email, hashed, role, name, address_id, phone]
+
+def hash_password(password):
+    """ hash password """
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 if __name__ == "__main__":
