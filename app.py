@@ -14,6 +14,13 @@ def index():
 def initialize_database():
     create_tables()
 
+    # making these gloabl so they can be used to populate Users (see rational above load_buyers_info)
+    global buyers_info, sellers_info
+    buyers_info = load_buyers_info()
+    sellers_info = load_sellers_info()
+
+########## CREATE TABLES ##########
+
 def create_tables():
     """
         Function to create tables that correspond to our requirement analysis in our Phase I NittanyBusiness report
@@ -171,6 +178,8 @@ def create_tables():
     connection.commit()
     connection.close()
 
+########## POPULATE TABLES ##########
+
 def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=False):
     """
         Generic function to populate a table from a CSV file.
@@ -194,6 +203,45 @@ def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=
 
     connection.commit()
     connection.close()
+
+########## LOAD PREREQUISITE INFORMATION ##########
+
+# Since we cannot populate the Users table without the information from Buyers.csv and Sellers.csv,
+# we have to preload the buyer and seller information in order to create users.
+# Intuition would say that we can just populate the Buyers and Sellers tables before Users,
+# but this does not make sense because the application logic involves the User being created first
+
+def load_buyers_info():
+    """
+    Load buyer info from Buyers.csv.
+    """
+    info = {}
+    with open('Buyers.csv', 'r', newline='') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            email = row[0].strip()
+            business_name = row[1].strip()
+            buyer_address_id = row[2].strip()  # may convert to int if needed
+            info[email] = (business_name, buyer_address_id)
+    return info
+
+def load_sellers_info():
+    """
+    Load seller info from Sellers.csv.
+    """
+    info = {}
+    with open('Sellers.csv', 'r', newline='') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+        for row in reader:
+            email = row[0].strip()
+            business_name = row[1].strip()
+            business_address = row[2].strip()  # may convert to int if needed
+            # other seller details can be processed in the sellers table;
+            # for Users we only need name and address_id.
+            info[email] = (business_name, business_address)
+    return info
 
 
 if __name__ == "__main__":
