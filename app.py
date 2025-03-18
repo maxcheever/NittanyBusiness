@@ -169,6 +169,25 @@ def create_tables():
     connection.commit()
     connection.close()
 
+def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=False):
+    connection = sqlite3.connect('nittanybusiness.db')
+    cursor = connection.cursor()
+
+    with open(csv_file, 'r', newline='') as file:
+        reader = csv.reader(file)
+        headers = next(reader)  # Skip header row
+        for row in reader:
+            if transform_func:
+                row = transform_func(row)
+            if hash_pwd:
+                row[1] = hash_password(row[1])
+            placeholders = ', '.join('?' * len(row))
+            query = f'INSERT INTO {table_name} VALUES ({placeholders})'
+            cursor.execute(query, row)
+
+    connection.commit()
+    connection.close()
+
 
 if __name__ == "__main__":
     app.run()
