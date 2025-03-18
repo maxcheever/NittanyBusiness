@@ -15,10 +15,12 @@ def initialize_database():
     create_tables()
 
 def create_tables():
+    """
+        Function to create tables that correspond to our requirement analysis in our Phase I NittanyBusiness report
+    """
     connection = sql.connect('database.db')
     cursor = connection.cursor()
 
-    ### These tables correspond to the tables from our requirement analysis in the NittanyBusiness Phase I report ###
 
     # Table 1: Users
     cursor.execute('''
@@ -170,12 +172,17 @@ def create_tables():
     connection.close()
 
 def populate_table_from_csv(table_name, csv_file, transform_func=None, hash_pwd=False):
-    connection = sqlite3.connect('nittanybusiness.db')
+    """
+        Generic function to populate a table from a CSV file.
+        Takes table name, csv file name, and uses transform_func to populate row
+        If hash_pwd is True, the second column is a password to hash (from Users.csv).
+    """
+    connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
 
     with open(csv_file, 'r', newline='') as file:
         reader = csv.reader(file)
-        headers = next(reader)  # Skip header row
+        headers = next(reader)  # skip header row
         for row in reader:
             if transform_func:
                 row = transform_func(row)
