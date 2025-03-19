@@ -29,10 +29,9 @@ def initialize_database():
     populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
     populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv')
     populate_table_from_csv('HelpDesk', './NittanyBusinessDataset_v3/Requests.csv', transform_func=transform_helpdesk_row)
-    populate_table_from_csv('Product', './NittanyBusinessDataset_v3/Product_Listings.csv',
-                            transform_func=transform_product_row)
-    populate_table_from_csv('Reviews', './NittanyBusinessDataset_v3/Reviews.csv',
-                            transform_func=transform_review_row)
+    populate_table_from_csv('Product', './NittanyBusinessDataset_v3/Product_Listings.csv', transform_func=transform_product_row)
+    populate_table_from_csv('Reviews', './NittanyBusinessDataset_v3/Reviews.csv', transform_func=transform_review_row)
+    populate_table_from_csv('Orders', './NittanyBusinessDataset_v3/Orders.csv', transform_func=transform_order_row)
     populate_category_hierarchy('./NittanyBusinessDataset_v3/Categories.csv') # doing this differently since it requires going back through table
 
 
@@ -159,7 +158,6 @@ def create_tables():
                 order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 quantity INTEGER NOT NULL CHECK (quantity > 0),
                 amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
-                status VARCHAR(50) NOT NULL CHECK (status IN ('Completed', 'Canceled', 'Pending')),
                 FOREIGN KEY (buyer_id) REFERENCES Users(user_id),
                 FOREIGN KEY (seller_id) REFERENCES Users(user_id),
                 FOREIGN KEY (product_id) REFERENCES Product(product_id)
@@ -360,6 +358,19 @@ def transform_review_row(row):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return [None, row[0].strip(), row[1].strip(), row[2].strip(), timestamp]
 
+def transform_order_row(row):
+    """
+    Transform Orders.csv row into an Orders table row.
+    Expected CSV columns: Order_ID, Seller_Email, Listing_ID, Buyer_Email, Date, Quantity, Payment.
+    """
+    order_id = row[0].strip()
+    seller_id = row[1].strip()
+    product_id = row[2].strip()
+    buyer_id = row[3].strip()
+    order_date = row[4].strip()
+    quantity = int(row[5].strip())
+    amount = float(row[6].strip())
+    return [order_id, buyer_id, seller_id, product_id, order_date, quantity, amount]
 
 def populate_category_hierarchy(csv_file):
     """

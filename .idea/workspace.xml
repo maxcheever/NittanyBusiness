@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="21ea94d1-e488-4ba2-8bb9-8630d2b57c2c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/996440c9-efdc-4e3e-9062-99fe7587d5a3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/996440c9-efdc-4e3e-9062-99fe7587d5a3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,6 +136,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FlaskProject1$FlaskProject1.coverage" NAME="FlaskProject1 Coverage Results" MODIFIED="1742327613894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/FlaskProject1$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1742395350519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/FlaskProject1$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1742395381096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
