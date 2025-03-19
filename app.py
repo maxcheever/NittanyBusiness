@@ -28,6 +28,7 @@ def initialize_database():
     populate_table_from_csv('Buyers', './NittanyBusinessDataset_v3/Buyers.csv')
     populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
     populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv')
+    populate_table_from_csv('HelpDesk', './NittanyBusinessDataset_v3/Requests.csv', transform_func=transform_helpdesk_row)
 
 
 ########## CREATE TABLES ##########
@@ -106,11 +107,11 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS HelpDesk (
                 request_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 requester_id VARCHAR(255) NOT NULL,
-                request_type VARCHAR(50) NOT NULL CHECK (request_type IN ('Role Conversion', 'New Category', 'ID Change', 'Other')),
-                details TEXT NOT NULL,
-                status VARCHAR(50) NOT NULL CHECK (status IN ('Pending', 'Approved', 'Rejected')),
-                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 helpdesk_staff_email TEXT,
+                request_type VARCHAR(50) NOT NULL CHECK (request_type IN ('MarketAnalysis', 'ChangeID', 'AddCategory', 'Other')),
+                details TEXT NOT NULL,
+                status INTEGER NOT NULL CHECK (status IN (0, 1, 2)),
+                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (requester_id) REFERENCES Users(user_id)
             )
         ''')
@@ -332,6 +333,9 @@ def parse_expiration_date(expire_month, expire_year):
     except Exception:
         return None
 
+def transform_helpdesk_row(row):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip(), row[4].strip(), row[5].strip(), timestamp]
 
 if __name__ == "__main__":
     app.run()
