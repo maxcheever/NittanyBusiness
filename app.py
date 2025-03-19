@@ -29,6 +29,9 @@ def initialize_database():
     populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
     populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv')
     populate_table_from_csv('HelpDesk', './NittanyBusinessDataset_v3/Requests.csv', transform_func=transform_helpdesk_row)
+    populate_table_from_csv('Product', './NittanyBusinessDataset_v3/Product_Listings.csv',
+                            transform_func=transform_product_row)
+    populate_category_hierarchy('./NittanyBusinessDataset_v3/Categories.csv') # doing this differently since it requires going back through table
 
 
 ########## CREATE TABLES ##########
@@ -125,10 +128,10 @@ def create_tables():
                 price REAL NOT NULL CHECK (price > 0),
                 quantity INTEGER NOT NULL CHECK (quantity >= 0),
                 seller_id VARCHAR(255) NOT NULL,
-                category_id INTEGER NOT NULL,
+                category VARCHAR(100) NOT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (seller_id) REFERENCES Users(user_id),
-                FOREIGN KEY (category_id) REFERENCES CategoryHierarchy(category_id)
+                FOREIGN KEY (category) REFERENCES CategoryHierarchy(name)
             )
         ''')
 
@@ -163,7 +166,7 @@ def create_tables():
             )
         ''')
 
-    # Table 10: CategoryHierarchy (with parent_category as int referencing category_id)
+    # Table 10: CategoryHierarchy
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS CategoryHierarchy (
                 category_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -336,6 +339,57 @@ def parse_expiration_date(expire_month, expire_year):
 def transform_helpdesk_row(row):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return [row[0].strip(), row[1].strip(), row[2].strip(), row[3].strip(), row[4].strip(), row[5].strip(), timestamp]
+
+def transform_product_row(row):
+    """
+    Transform Product_Listings.csv row into a Product table row.
+    Expected CSV columns: Seller_Email, Listing_ID, Category, Product_Title, Product_Name, Product_Description, Quantity, Product.
+    Uses Listing_ID as product_id.
+    """
+    product_id = row[1].strip()
+    title = row[3].strip()
+    details = row[5].strip()
+    price = float(row[7].strip()[1:].replace(',',''))
+    quantity = int(row[6].strip())
+    seller_id = row[0].strip()
+    category = row[2].strip()
+    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return [product_id, title, details, price, quantity, seller_id, category, created_at]
+
+
+def populate_category_hierarchy(csv_file):
+    """
+    Populate CategoryHierarchy from Categories.csv.
+    Expected CSV columns: parent_category, category_name.
+    First, inserting all categories with parent_category set to NULL.
+    Then updating rows by matching the parent category name to get the parent_category id.
+    """
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+
+    category_map = {}
+    categories = []
+
+    with open(csv_file, 'r', newline='') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header row
+        for row in reader:
+            parent_name = row[0].strip() if row[0].strip() != '' else None
+            category_name = row[1].strip()
+            categories.append((parent_name, category_name))
+            cursor.execute('INSERT INTO CategoryHierarchy (name, parent_category) VALUES (?, ?)', (category_name, None))
+            category_id = cursor.lastrowid
+            category_map[category_name] = category_id
+
+    for parent_name, category_name in categories:
+        if parent_name:
+            parent_id = category_map.get(parent_name)
+            if parent_id:
+                category_id = category_map[category_name]
+                cursor.execute('UPDATE CategoryHierarchy SET parent_category = ? WHERE category_id = ?',
+                               (parent_id, category_id))
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     app.run()

@@ -499,7 +499,7 @@
     </routine>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-03-19.14:10:33</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-03-19.14:34:55</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1899,10 +1899,10 @@
       <Position>6</Position>
       <StoredType>VARCHAR(255)|0s</StoredType>
     </column>
-    <column id="631" parent="561" name="category_id">
+    <column id="631" parent="561" name="category">
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StoredType>INTEGER|0s</StoredType>
+      <StoredType>VARCHAR(100)|0s</StoredType>
     </column>
     <column id="632" parent="561" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
@@ -1916,8 +1916,8 @@
       <RefTableName>Users</RefTableName>
     </foreign-key>
     <foreign-key id="634" parent="561">
-      <ColNames>category_id</ColNames>
-      <RefColNames>category_id</RefColNames>
+      <ColNames>category</ColNames>
+      <RefColNames>name</RefColNames>
       <RefTableName>CategoryHierarchy</RefTableName>
     </foreign-key>
     <key id="635" parent="561">
