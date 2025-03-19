@@ -31,6 +31,8 @@ def initialize_database():
     populate_table_from_csv('HelpDesk', './NittanyBusinessDataset_v3/Requests.csv', transform_func=transform_helpdesk_row)
     populate_table_from_csv('Product', './NittanyBusinessDataset_v3/Product_Listings.csv',
                             transform_func=transform_product_row)
+    populate_table_from_csv('Reviews', './NittanyBusinessDataset_v3/Reviews.csv',
+                            transform_func=transform_review_row)
     populate_category_hierarchy('./NittanyBusinessDataset_v3/Categories.csv') # doing this differently since it requires going back through table
 
 
@@ -139,13 +141,11 @@ def create_tables():
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS Reviews (
                 review_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                buyer_id VARCHAR(255) NOT NULL,
-                product_id INTEGER NOT NULL,
-                review_text TEXT NOT NULL,
+                order_id INTEGER NOT NULL,
                 rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                review_text TEXT NOT NULL,
                 timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (buyer_id) REFERENCES Users(user_id),
-                FOREIGN KEY (product_id) REFERENCES Product(product_id)
+                FOREIGN KEY (order_id) REFERENCES Orders(order_id)
             )
         ''')
 
@@ -355,6 +355,10 @@ def transform_product_row(row):
     category = row[2].strip()
     created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return [product_id, title, details, price, quantity, seller_id, category, created_at]
+
+def transform_review_row(row):
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return [None, row[0].strip(), row[1].strip(), row[2].strip(), timestamp]
 
 
 def populate_category_hierarchy(csv_file):
