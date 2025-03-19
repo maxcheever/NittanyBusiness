@@ -27,6 +27,7 @@ def initialize_database():
     populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
     populate_table_from_csv('Buyers', './NittanyBusinessDataset_v3/Buyers.csv')
     populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
+    populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv')
 
 
 ########## CREATE TABLES ##########
@@ -91,8 +92,7 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS Sellers (
                 user_id VARCHAR(255) PRIMARY KEY,
                 business_name VARCHAR(255) NOT NULL,
-                business_address INTEGER NOT NULL,
-                business_phone VARCHAR(50) NOT NULL,
+                business_address VARCHAR(255) NOT NULL,
                 bank_routing_number TEXT NOT NULL,
                 bank_account_number TEXT NOT NULL,
                 balance REAL NOT NULL,
