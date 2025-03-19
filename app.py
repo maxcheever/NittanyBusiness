@@ -26,6 +26,7 @@ def initialize_database():
     populate_table_from_csv('Users', './NittanyBusinessDataset_v3/Users.csv', transform_func=transform_user_row)
     populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
     populate_table_from_csv('Buyers', './NittanyBusinessDataset_v3/Buyers.csv')
+    populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
 
 
 ########## CREATE TABLES ##########
@@ -78,7 +79,7 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS PaymentDetails (
                 payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id VARCHAR(255) NOT NULL,
-                card_type VARCHAR(50) NOT NULL CHECK (card_type IN ('Visa', 'MasterCard', 'Discover')),
+                card_type VARCHAR(50) NOT NULL CHECK (card_type IN ('Visa', 'Master', 'Discover', 'American Express')),
                 card_number VARCHAR(100) NOT NULL,
                 expiration_date DATE NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id)
@@ -313,6 +314,23 @@ def transform_address_row(row):
     else:
         city, state = 'Unknown', 'Unknown'
     return [row[0].strip(), street, city, state, zipcode]
+
+def transform_payment_row(row):
+    """
+    Transform Credit_Cards.csv row into a PaymentDetails table row.
+    Expected CSV columns: credit_card_num, card_type, expire_month, expire_year, security_code, Owner_email.
+    Uses Owner_email as user_id and credit_card_num as card_number.
+    """
+    expiration_date = parse_expiration_date(row[2], row[3])
+    return [None, row[5].strip(), row[1].strip(), row[0].strip(), expiration_date]
+
+def parse_expiration_date(expire_month, expire_year):
+    """Convert expire_month and expire_year into a date string (YYYY-MM-01)."""
+    try:
+        month = f"{int(expire_month):02d}"
+        return f"{expire_year}-{month}-01"
+    except Exception:
+        return None
 
 
 if __name__ == "__main__":
