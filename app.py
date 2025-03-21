@@ -6,9 +6,12 @@ app = Flask(__name__)
 
 host = 'http://127.0.0.1:5000/'
 
+# initialize database when app is run
+with app.app_context():
+    initialize_database()
+
 @app.route('/')
 def index():
-    initialize_database()
     return render_template('index.html')
 
 if __name__ == "__main__":
