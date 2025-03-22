@@ -20,6 +20,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        if check_password(username, password):
+            return render_template('home.html')
+        else:
+            return render_template('index.html', message='Username and/or password is incorrect. Please try again.')
 
 def check_password(username: str, password: str) -> bool:
     # Encrypt the password
@@ -28,8 +32,8 @@ def check_password(username: str, password: str) -> bool:
     # Connect to database
     connection = sql.connect('database.db')
     info = connection.execute('SELECT * FROM Users WHERE user_id = :username AND password = :password')
-
-
+    # if info is valid
+    # return True
 
     return False
 
