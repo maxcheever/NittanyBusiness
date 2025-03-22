@@ -20,7 +20,6 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(username, password)
         if check_password(username, password):
             return render_template('home.html')
         else:
@@ -36,7 +35,6 @@ def check_password(username: str, password: str) -> bool:
     if info.fetchall():
         return True
     return False
-
 
 if __name__ == "__main__":
     app.run()
