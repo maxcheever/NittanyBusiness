@@ -12,12 +12,14 @@
     <div class="card-body" align="center">
         <h1>Nittany Business</h1>
         <div>
-            <h2>Login</h2>
-            <label for="username">Username: </label>
-            <input type="text" id="username" name="username"><br><br>
-            <label for="password">Password: </label>
-            <input type="text" id="password" name="password"><br><br>
-            <a class="btn btn-success" href="/login" role="button" id="loginButton">LOGIN</a>
+            <form action="/login" method="POST">
+                <h2>Login</h2>
+                <label for="username">Username: </label>
+                <input type="text" id="username" name="username"><br><br>
+                <label for="password">Password: </label>
+                <input type="text" id="password" name="password"><br><br>
+                <a class="btn btn-success" href="/login" role="button" id="loginButton">LOGIN</a>
+            </form>
         </div>
     </div>
 </div>
