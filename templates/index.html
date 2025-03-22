@@ -20,11 +20,11 @@
                 <input type="text" id="password" name="password"><br><br>
 {#                <a class="btn btn-success" role="button" id="loginButton">LOGIN</a>#}
                 <button type="submit" class="btn btn-success" id="loginButton" style="margin-top: 20px; background-color:cornflowerblue; border: None">
-                    Go!
+                    LOGIN
                 </button>
             </form>
             {%  if message %}
-                <p>{{ message | safe }}</p>
+                <p style="color: red">{{ message | safe }}</p>
             {% endif %}
         </div>
     </div>

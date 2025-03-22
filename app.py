@@ -20,6 +20,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        print(username, password)
         if check_password(username, password):
             return render_template('home.html')
         else:
@@ -32,10 +33,8 @@ def check_password(username: str, password: str) -> bool:
     # Connect to database
     connection = sql.connect('database.db')
     info = connection.execute('SELECT * FROM Users WHERE user_id = ? AND password = ?', (username, encrypted_password))
-    print(info)
-    if info:
+    if info.fetchall():
         return True
-
     return False
 
 
