@@ -12,15 +12,18 @@
     <div class="card-body" align="center">
         <h1>Nittany Business</h1>
         <div>
-            <form action="/login" method="POST">
+            <form action="/" method="POST">
                 <h2>Login</h2>
                 <label for="username">Username: </label>
                 <input type="text" id="username" name="username"><br><br>
                 <label for="password">Password: </label>
                 <input type="text" id="password" name="password"><br><br>
-                <a class="btn btn-success" href="/login" role="button" id="loginButton">LOGIN</a>
+{#                <a class="btn btn-success" role="button" id="loginButton">LOGIN</a>#}
+                <button type="submit" class="btn btn-success" id="loginButton" style="margin-top: 20px; background-color:cornflowerblue; border: None">
+                    Go!
+                </button>
             </form>
-            {%  if loginMessage %}
+            {%  if message %}
                 <p>{{ message | safe }}</p>
             {% endif %}
         </div>
