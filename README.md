@@ -6,18 +6,18 @@ Phase II of the NittanyBusiness Project requires us to handle the two following 
 ## Files
 1. `app.py`
 - This is the main Flask application file that starts the web server and defines the routes for the application. Upon execution, it automatically initializes the database via the `initialize_database()` from `init_db.py`
-- GET / route displays the login page by rendering `index.html`
-- POST / route processes information from the login form by extracting the username and password from the request. After, it calls `check_password()` to verify the credentials of the user. If the authentication is successful, the application renders `home.html`. Otherwise, it renders `index.html` again but with an error message
+- GET `/` route displays the login page by rendering `index.html`
+- POST `/` route processes information from the login form by extracting the username and password from the request. After, it calls `check_password()` to verify the credentials of the user. If the authentication is successful, the application renders `home.html`. Otherwise, it renders `index.html` again but with an error message
 - **Password Verification**: Implemented as a helper function called `check_password()`. The function hashes the user's inputted password and checks it against the stored value in the SQLite database
 2. `init_db.py`
 - This file is responsible for setting up and populating the database of our application. It contains all the code and functions necessary to create tables and load data from the CSV files
 - **Creating Tables**: The `create_tables()` function creates several tables (e.g. Users, Address, Buyers, PaymentDetails, etc.) using SQL commands
 - **Populating Tables**: Imports data into tables from various CSV files using `populate_table_from_csv()`. Calls specific transformation functions to convert CSV row data into the correct format before inserting into the respective table
-- Helper functions were also implemented to accommodate the database initialization process. `hash_password()` encrypts user passwords using SHA-256. There are multiple transformation functions that adjust the CSV data to match the database schema. Last, we had a helper function that handled parent-child relationships between different categories
+- Helper functions were also implemented to accommodate the database initialization process. `hash_password()` encrypts user passwords using SHA-256. There are multiple transformation functions that adjust the CSV data to match the database schema. Last, we had a helper function that handles parent-child relationships between different categories
 3. `index.htnml`
 - Login page of the application where users input their username and password
 - Provides a login form with fields for username and password and uses the POST method to send login data to the server
-- Contains a section that displays error mesages when the credentials don't match what is stored in the database
+- Contains a section that displays an error mesage when the credentials don't match what is stored in the database
 4. `home.html`
 - Serves as a simple confirmation page that is displayed upon successfully logging in
 
@@ -25,6 +25,7 @@ Phase II of the NittanyBusiness Project requires us to handle the two following 
 To test a failed login, we used...
 - **Username**: o5mrsfw0@nittybiz.com
 - **Password**: hello
+  
 To test a successful login, we used...
 - **Username**: o5mrsfw0@nittybiz.com
 - **Password**: 9057bc90227bb3025b8e2a4049763407678525e5165192e463c27871af3f2893
