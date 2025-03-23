@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Nittany Business</title>
+    <title>NittanyBusiness</title>
 </head>
 <body>
 <div class="container-sm">
     <div class="card-body" align="center">
         <h1>Nittany Business</h1>
         <div>
+            {# Login form where user can type in their username and password #}
             <form action="/" method="POST">
                 <h2>Login</h2>
                 <label for="username">Username: </label>
                 <input type="text" id="username" name="username"><br><br>
                 <label for="password">Password: </label>
                 <input type="password" id="password" name="password"><br><br>
-{#                <a class="btn btn-success" role="button" id="loginButton">LOGIN</a>#}
                 <button type="submit" class="btn btn-success" id="loginButton" style="background-color:cornflowerblue; border: None">
                     LOGIN
                 </button>
             </form>
+            {# Output an error message when user inputs the wrong username and/or password #}
             {%  if message %}
                 <p style="color: red; margin-top: 10px">{{ message | safe }}</p>
             {% endif %}
