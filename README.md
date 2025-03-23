@@ -23,12 +23,12 @@ Phase II of the NittanyBusiness Project requires us to handle the two following 
 
 ## Testing
 To test a failed login, we used...
-- **Username**: o5mrsfw0@nittybiz.com
-- **Password**: hello
+- **Username**: sherryzhang@gmail.com
+- **Password**: bye
   
 To test a successful login, we used...
-- **Username**: o5mrsfw0@nittybiz.com
-- **Password**: 9057bc90227bb3025b8e2a4049763407678525e5165192e463c27871af3f2893
+- **Username**: sherryzhang@gmail.com
+- **Password**: hello
 
 ## How to Run
 1. Open PyCharm and select 'Import Project' or 'Open' to load this folder
