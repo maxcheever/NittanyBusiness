@@ -1,4 +1,4 @@
-# Nittany Business Phase II
+# Phase 2 Progress Review
 
 ## Context
 Phase II of the NittanyBusiness Project requires us to handle the two following tasks: Database Population and User Login. Database population requires us to create tables with the necessary primary keys and populate the tables with the data from the provided CSV files. Each password in the CSV file also needs be securely hashed. In our implementation, we chose to use SHA-256. For User Login, we are asked to create a login page for users (seller, buyer, and help desk). The system recognizes a user by their email (username) and password. For security reasons, passwords must be hashed when stored and must not be visible while being entered. SHA-256 was used again for password hashing and masking was applied to ensure that passwords are concealed during user input. Additionally, for unsuccessful login attempts, we output an error message letting the user that their username and/or password is incorrect. 
