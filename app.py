@@ -26,9 +26,30 @@ def login():
         password = request.form['password']
         # Check if password is correct. Output error if incorrect
         if check_password(username, password):
-            return render_template('home.html')
+            user_type = get_user_type(username)
+            return render_template('home.html', user_type=user_type)
         else:
             return render_template('index.html', message='Username and/or password is incorrect. Please try again.')
+
+# def get_user_type(username: str) -> str or None:
+#     connection = sql.connect('database.db')
+#     user_type = connection.execute('SELECT role FROM Users WHERE user_id = ?', (username))
+#     connection.close()
+#     if user_type in ['Buyer','Seller','HelpDesk']:
+#         return user_type
+
+def get_user_type(username: str):
+    conn = sql.connect('database.db')
+    cursor = conn.execute(
+        'SELECT role FROM Users WHERE user_id = ?',
+        (username,)               # <-- note the comma
+    )
+    row = cursor.fetchone()
+    conn.close()
+    if row and row[0] in ('Buyer', 'Seller', 'HelpDesk'):
+        return row[0]
+    return None
+
 
 def check_password(username: str, password: str) -> bool:
     '''
