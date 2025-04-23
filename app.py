@@ -50,6 +50,10 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# @app.route('/signup')
+# def signup():
+#     return render_template('signup.html')
+
 def get_user_type(username: str):
     conn = sql.connect('database.db')
     cursor = conn.execute(

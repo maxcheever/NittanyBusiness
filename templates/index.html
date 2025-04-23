@@ -23,6 +23,11 @@
                     LOGIN
                 </button>
             </form>
+            <br>
+            {# User registration for those without an account#}
+            <p>Don't have an account?</p>
+            <a href="/signup" class="btn btn-outline-primary">Sign Up</a>
+
             {# Output an error message when user inputs the wrong username and/or password #}
             {%  if message %}
                 <p style="color: red; margin-top: 10px">{{ message | safe }}</p>
