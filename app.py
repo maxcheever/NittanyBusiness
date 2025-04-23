@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect, url_for
 from init_db import initialize_database, hash_password
 import sqlite3 as sql
 
 app = Flask(__name__)
+app.secret_key = 'd8hKHndjUxkiw168'
 
 host = 'http://127.0.0.1:5000/'
 
@@ -10,15 +11,10 @@ host = 'http://127.0.0.1:5000/'
 with app.app_context():
     initialize_database()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     '''
-        Handles user login. Extracts user inputted username and password
-        and checks if they are in the User schema
+        Handles both displaying the login form and processing login attempts
     '''
     if request.method == 'POST':
         # Extract user inputs from the form
@@ -26,17 +22,33 @@ def login():
         password = request.form['password']
         # Check if password is correct. Output error if incorrect
         if check_password(username, password):
-            user_type = get_user_type(username)
-            return render_template('home.html', user_type=user_type)
+            session['user_id'] = username
+            session['name'] = get_name(username)
+            session['user_type'] = get_user_type(username)
+            session['logged_in'] = True
+            return redirect(url_for('home'))
         else:
             return render_template('index.html', message='Username and/or password is incorrect. Please try again.')
+    return render_template('index.html')
 
-# def get_user_type(username: str) -> str or None:
-#     connection = sql.connect('database.db')
-#     user_type = connection.execute('SELECT role FROM Users WHERE user_id = ?', (username))
-#     connection.close()
-#     if user_type in ['Buyer','Seller','HelpDesk']:
-#         return user_type
+@app.route('/home')
+def home():
+    '''
+        Home page after successful login
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    user_type = session.get('user_type')
+    return render_template('home.html', user_type=user_type)
+
+@app.route('/logout')
+def logout():
+    '''
+        Clears the session and redirects to login page
+    '''
+    session.clear()
+    return redirect(url_for('login'))
 
 def get_user_type(username: str):
     conn = sql.connect('database.db')
@@ -50,6 +62,15 @@ def get_user_type(username: str):
         return row[0]
     return None
 
+def get_name(username: str):
+    conn = sql.connect('database.db')
+    cursor = conn.execute(
+        'SELECT name FROM Users WHERE user_id = ?',
+        (username,)  # <-- note the comma
+    )
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
 
 def check_password(username: str, password: str) -> bool:
     '''
