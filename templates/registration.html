@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>NittanyBusiness - User Registration</title>
+</head>
+<body>
+    <div class="card-body" align="center">
+        <h1>User Registration</h1>
+
+         <form action="/registration" method="POST">
+             <label for="username">Enter Email: </label>
+             <input type="text" id="username" name="username"><br><br>
+             <label for="name">Enter Business Name: </label>
+             <input type="text" id="name" name="name"><br><br>
+
+             <label for="role">Select Role: </label>
+             <br>
+             <select name="role" id="role" multiple>
+                 <option value="Buyer">Buyer</option>
+                 <option value="Seller">Seller</option>
+             </select>
+             <br><br>
+
+             <label for="password">Choose a Password: </label>
+             <input type="password" id="password" name="password"><br><br>
+             <button type="submit" class="btn btn-success" id="createAccountButton" style="background-color:cornflowerblue; border: None">
+                        CREATE ACCOUNT
+             </button>
+         </form>
+    </div>
+</body>
+</html>
