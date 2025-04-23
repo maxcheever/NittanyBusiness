@@ -94,5 +94,27 @@ def check_password(username: str, password: str) -> bool:
         return True
     return False
 
+# USER REGISTRATION
+@app.route('/registration', methods=['GET', 'POST'])
+def register_user():
+    if request.method == 'POST':
+        connection = sql.connect('database.db')
+        # Extract user inputs from the form
+        username = request.form['username']
+        password = request.form['password']
+        password = hash_password(password)
+        name = request.form['name']
+        role = request.form['role']
+        try:
+            connection.execute('INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?)', (username, password, role, name, None, None))
+            connection.commit()
+            connection.close()
+            return redirect(url_for('login'))
+        except:
+            render_template('registration.html', message='Registration Failed. Please try again.')
+    return render_template('registration.html')
+
+
+
 if __name__ == "__main__":
     app.run()

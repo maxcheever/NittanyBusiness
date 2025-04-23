@@ -41,7 +41,7 @@ def create_tables():
                 password VARCHAR(255) NOT NULL,
                 role VARCHAR(50) NOT NULL CHECK (role IN ('Buyer', 'Seller', 'HelpDesk')),
                 name VARCHAR(255) NOT NULL,
-                address_id INTEGER NOT NULL,
+                address_id INTEGER,
                 phone VARCHAR(50),
                 FOREIGN KEY (address_id) REFERENCES Address(address_id)
             )
