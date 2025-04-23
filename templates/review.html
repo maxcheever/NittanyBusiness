@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Leave a Review</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Leave a Review for Your Purchase</h2>
+
+        <form action="/submit_review" method="POST">
+            <!-- Hidden order_id from backend -->
+            <input type="hidden" name="order_id" value="{{ order_id }}">
+
+            <div class="form-group">
+                <label for="rating">Rating (1 to 5)</label>
+                <select class="form-control" name="rating" required>
+                    <option value="">-- Select Rating --</option>
+                    <option value="1">1 - Very Dissatisfied</option>
+                    <option value="2">2 - Dissatisfied</option>
+                    <option value="3">3 - Neutral</option>
+                    <option value="4">4 - Satisfied</option>
+                    <option value="5">5 - Very Satisfied</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="review_text">Review</label>
+                <textarea class="form-control" name="review_text" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+            <a href="/home" class="btn btn-secondary ml-2">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
