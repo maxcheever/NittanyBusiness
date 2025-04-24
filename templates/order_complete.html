@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Order Complete</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/home">NittanyBusiness</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/home">Home</a>
+            </li>
+            <!-- BUYER -->
+            {% if user_type == 'Buyer' %}
+              <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+              <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+              <li class="nav-item"><a class="nav-link active" href="/orders">Orders</a></li>
+            {% endif %}
+          </ul>
+
+          <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="jumbotron text-center">
+            <h1 class="display-4">Order Complete!</h1>
+            <p class="lead">Thank you for your purchase.</p>
+            <hr class="my-4">
+            <div class="card mx-auto" style="max-width: 500px;">
+                <div class="card-header">
+                    <h4>Order Details</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+                    <p><strong>Product:</strong> {{ order.product_title }}</p>
+                    <p><strong>Seller:</strong> {{ order.seller_name }}</p>
+                    <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                    <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="/orders" class="btn btn-primary">View My Orders</a>
+                <a href="/products" class="btn btn-success ml-2">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>

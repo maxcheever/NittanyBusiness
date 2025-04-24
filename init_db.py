@@ -4,6 +4,7 @@ import hashlib
 from datetime import datetime
 
 def initialize_database():
+    drop_tables()
     create_tables()
 
     # making these global so they can be used to populate Users and Address (see rationale above load_buyers_info)
@@ -109,22 +110,6 @@ def create_tables():
             )
         ''')
 
-    # Table 7: Product (Listings)
-    cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Product (
-                product_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title VARCHAR(255) NOT NULL,
-                details TEXT NOT NULL,
-                price REAL NOT NULL CHECK (price > 0),
-                quantity INTEGER NOT NULL CHECK (quantity >= 0),
-                seller_id VARCHAR(255) NOT NULL,
-                category VARCHAR(100) NOT NULL,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (seller_id) REFERENCES Users(user_id),
-                FOREIGN KEY (category) REFERENCES CategoryHierarchy(name)
-            )
-        ''')
-
     # Table 8: Reviews
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS Reviews (
@@ -163,6 +148,23 @@ def create_tables():
             )
         ''')
 
+    # Table 7: Product (Listings)
+    cursor.execute('''
+                CREATE TABLE IF NOT EXISTS Product (
+                    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title VARCHAR(255) NOT NULL,
+                    details TEXT NOT NULL,
+                    price REAL NOT NULL CHECK (price > 0),
+                    quantity INTEGER NOT NULL CHECK (quantity >= 0),
+                    seller_id VARCHAR(255) NOT NULL,
+                    category VARCHAR(100) NOT NULL,
+                    status INTEGER NOT NULL DEFAULT 1 CHECK (status IN (0,1,2)),
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (seller_id) REFERENCES Users(user_id),
+                    FOREIGN KEY (category) REFERENCES CategoryHierarchy(name)
+                )
+            ''')
+
     # Table 11: ShoppingCart
     cursor.execute('''
             CREATE TABLE IF NOT EXISTS ShoppingCart (
@@ -176,6 +178,18 @@ def create_tables():
             )
         ''')
 
+    connection.commit()
+    connection.close()
+
+########## DROP TABLES ##########
+
+def drop_tables():
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    tables = ['Users', 'Address', 'Buyers', 'PaymentDetails', 'Sellers', 'HelpDesk',
+              'Product', 'Reviews', 'Orders', 'CategoryHierarchy', 'ShoppingCart']
+    for table in tables:
+        cursor.execute(f"DROP TABLE IF EXISTS {table}")
     connection.commit()
     connection.close()
 
@@ -196,7 +210,7 @@ def populate_table_from_csv(table_name, csv_file, transform_func=None):
             if transform_func:
                 row = transform_func(row)
             placeholders = ', '.join('?' * len(row))
-            query = f'INSERT INTO {table_name} VALUES ({placeholders})'
+            query = f'INSERT OR IGNORE INTO {table_name} VALUES ({placeholders})'
             cursor.execute(query, row)
 
     connection.commit()
@@ -333,15 +347,16 @@ def transform_product_row(row):
     Expected CSV columns: Seller_Email, Listing_ID, Category, Product_Title, Product_Name, Product_Description, Quantity, Product.
     Uses Listing_ID as product_id.
     """
-    product_id = row[1].strip()
     title = row[3].strip()
     details = row[5].strip()
-    price = float(row[7].strip()[1:].replace(',',''))
+    price = float(row[7].strip()[1:].replace(',', ''))
     quantity = int(row[6].strip())
     seller_id = row[0].strip()
     category = row[2].strip()
+    status = 1
     created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return [product_id, title, details, price, quantity, seller_id, category, created_at]
+    return [None, title, details, price, quantity,
+            seller_id, category, status, created_at]
 
 def transform_review_row(row):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

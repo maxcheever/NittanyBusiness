@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Payment</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/home">NittanyBusiness</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/home">Home</a>
+            </li>
+            <!-- BUYER -->
+            {% if user_type == 'Buyer' %}
+              <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+              <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+              <li class="nav-item"><a class="nav-link active" href="/orders">Orders</a></li>
+            {% endif %}
+          </ul>
+
+          <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Payment</h1>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Order Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Product:</strong> {{ order.product_title }}</p>
+                        <p><strong>Seller:</strong> {{ order.seller_name }}</p>
+                        <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                        <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+                    </div>
+                </div>
+
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Payment Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="/order/payment">
+                            {% if saved_cards %}
+                                <div class="form-group">
+                                    <label>Use Saved Card:</label>
+                                    <select class="form-control" id="saved_card" name="saved_card">
+                                        <option value="">Select a saved card</option>
+                                        {% for card in saved_cards %}
+                                            <option value="{{ card.payment_id }}">
+                                                {{ card.card_type }} ending in {{ card.card_number[-4:] }} (Expires: {{ card.expiration_date }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="text-center my-3">
+                                    <p>- OR -</p>
+                                </div>
+                            {% endif %}
+
+                            <div id="new_card_form">
+                                <div class="form-group">
+                                    <label for="card_type">Card Type:</label>
+                                    <select class="form-control" id="card_type" name="card_type" required>
+                                        <option value="">Select card type</option>
+                                        <option value="Visa">Visa</option>
+                                        <option value="Master">MasterCard</option>
+                                        <option value="Discover">Discover</option>
+                                        <option value="American Express">American Express</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="card_number">Card Number:</label>
+                                    <input type="text" class="form-control" id="card_number" name="card_number"
+                                           placeholder="Card Number" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="expiry_date">Expiration Date:</label>
+                                        <input type="text" class="form-control" id="expiry_date" name="expiry_date"
+                                               placeholder="MM/YYYY" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="cvv">CVV:</label>
+                                        <input type="text" class="form-control" id="cvv" name="cvv"
+                                               placeholder="CVV" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="save_card" name="save_card" value="1">
+                                        <label class="form-check-label" for="save_card">
+                                            Save this card for future purchases
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block mt-4">Complete Purchase</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Secure Payment</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Your payment information is securely processed.</p>
+                        <p>We do not store your complete card information.</p>
+                        <p>This transaction is encrypted and protected.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <script>
+        // Toggle new card form based on saved card selection
+        document.getElementById('saved_card').addEventListener('change', function() {
+            const newCardForm = document.getElementById('new_card_form');
+            if (this.value) {
+                newCardForm.style.display = 'none';
+                // Disable required fields in new card form
+                const inputs = newCardForm.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.required = false;
+                });
+            } else {
+                newCardForm.style.display = 'block';
+                // Re-enable required fields
+                const inputs = newCardForm.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if (input.id !== 'save_card') {
+                        input.required = true;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

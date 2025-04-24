@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>My Orders</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/home">NittanyBusiness</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/home">Home</a>
+            </li>
+            <!-- BUYER -->
+            {% if user_type == 'Buyer' %}
+              <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+              <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+              <li class="nav-item"><a class="nav-link active" href="/orders">Orders</a></li>
+            {% endif %}
+          </ul>
+
+          <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>My Orders</h2>
+
+        {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Product</th>
+                            <th>Seller</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>{{ order.order_id }}</td>
+                                <td>{{ order.order_date }}</td>
+                                <td>{{ order.product_title }}</td>
+                                <td>{{ order.seller_name }}</td>
+                                <td>{{ order.quantity }}</td>
+                                <td>${{ order.amount }}</td>
+                                <td>
+                                    <a href="/orders/view/{{ order.order_id }}" class="btn btn-sm btn-info">View Details</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                You haven't placed any orders yet.
+                <a href="/products" class="alert-link">Browse products</a> to start shopping!
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>

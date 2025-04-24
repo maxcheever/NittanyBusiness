@@ -117,6 +117,649 @@ def register_user():
             return render_template('registration.html', message='Registration Failed. Please try again.')
     return render_template('registration.html')
 
+# Product Listing Management
+
+@app.route('/seller/products')
+def seller_products():
+    '''
+    Page that displays products registered by the seller
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Check if it's a seller account
+    if session.get('user_type') != 'Seller':
+        return redirect(url_for('home'))
+
+    seller_id = session.get('user_id')
+
+    # Get active products (status=1)
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # Retrieve active products
+    active_cursor = conn.execute('''
+        SELECT p.*, c.name as category_name 
+        FROM Product p
+        JOIN CategoryHierarchy c ON p.category = c.name
+        WHERE p.seller_id = ? AND p.status = 1
+        ORDER BY p.created_at DESC
+    ''', (seller_id,))
+    active_products = active_cursor.fetchall()
+
+    # Retrieve inactive/sold products
+    inactive_cursor = conn.execute('''
+        SELECT p.*, c.name as category_name 
+        FROM Product p
+        JOIN CategoryHierarchy c ON p.category = c.name
+        WHERE p.seller_id = ? AND p.status IN (0, 2)
+        ORDER BY p.created_at DESC
+    ''', (seller_id,))
+    inactive_products = inactive_cursor.fetchall()
+
+    conn.close()
+
+    return render_template('seller_products.html',
+                           active_products=active_products,
+                           inactive_products=inactive_products,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/seller/products/new', methods=['GET', 'POST'])
+def new_product():
+    '''
+    New product registration page and processing
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Check if it's a seller account
+    if session.get('user_type') != 'Seller':
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        # Get data from the form
+        title = request.form['title']
+        details = request.form['description']
+        price = float(request.form['price'])
+        quantity = int(request.form['quantity'])
+        category_id = request.form['category_id']
+        seller_id = session.get('user_id')
+
+        # Get category name
+        conn = sql.connect('database.db')
+        cursor = conn.execute('SELECT name FROM CategoryHierarchy WHERE category_id = ?', (category_id,))
+        category_name = cursor.fetchone()[0]
+
+        # Register the product
+        conn.execute('''
+            INSERT INTO Product (title, details, price, quantity, seller_id, category, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'))
+        ''', (title, details, price, quantity, seller_id, category_name))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('seller_products'))
+
+    # For GET requests, retrieve category list
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+    cursor = conn.execute('SELECT * FROM CategoryHierarchy ORDER BY name')
+    categories = cursor.fetchall()
+    conn.close()
+
+    return render_template('new_product.html',
+                           categories=categories,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/seller/products/edit/<int:product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    '''
+    Product information editing page and processing
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Check if it's a seller account
+    if session.get('user_type') != 'Seller':
+        return redirect(url_for('home'))
+
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # First, verify if this product belongs to the currently logged-in seller
+    cursor = conn.execute('SELECT seller_id FROM Product WHERE product_id = ?', (product_id,))
+    product_seller = cursor.fetchone()
+
+    if not product_seller or product_seller['seller_id'] != session.get('user_id'):
+        conn.close()
+        return redirect(url_for('seller_products'))
+
+    if request.method == 'POST':
+        # Get data from the form
+        title = request.form['title']
+        details = request.form['description']
+        price = float(request.form['price'])
+        quantity = int(request.form['quantity'])
+        status = int(request.form['status'])
+
+        # Update product information
+        conn.execute('''
+            UPDATE Product 
+            SET title = ?, details = ?, price = ?, quantity = ?, status = ?
+            WHERE product_id = ?
+        ''', (title, details, price, quantity, status, product_id))
+        conn.commit()
+
+        # Check if the product is sold out
+        if quantity == 0 and status == 1:
+            conn.execute('UPDATE Product SET status = 2 WHERE product_id = ?', (product_id,))
+            conn.commit()
+
+        conn.close()
+        return redirect(url_for('seller_products'))
+
+    # For GET requests, retrieve product information
+    cursor = conn.execute('''
+        SELECT p.*, c.name as category_name 
+        FROM Product p
+        JOIN CategoryHierarchy c ON p.category = c.name
+        WHERE p.product_id = ?
+    ''', (product_id,))
+    product = cursor.fetchone()
+
+    if not product:
+        conn.close()
+        return redirect(url_for('seller_products'))
+
+    conn.close()
+    return render_template('edit_product.html',
+                           product=product,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/seller/products/activate/<int:product_id>')
+def activate_product(product_id):
+    '''
+    Product activation processing
+    '''
+    if not session.get('logged_in') or session.get('user_type') != 'Seller':
+        return redirect(url_for('login'))
+
+    conn = sql.connect('database.db')
+
+    # First, verify if this product belongs to the currently logged-in seller
+    cursor = conn.execute('SELECT seller_id, quantity FROM Product WHERE product_id = ?', (product_id,))
+    product = cursor.fetchone()
+
+    if not product or product[0] != session.get('user_id'):
+        conn.close()
+        return redirect(url_for('seller_products'))
+
+    # If product quantity is 0, set status to 2 (Sold), otherwise set to 1 (Active)
+    new_status = 2 if product[1] == 0 else 1
+
+    conn.execute('UPDATE Product SET status = ? WHERE product_id = ?', (new_status, product_id))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('seller_products'))
+
+
+@app.route('/seller/products/deactivate/<int:product_id>')
+def deactivate_product(product_id):
+    '''
+    Product deactivation processing
+    '''
+    if not session.get('logged_in') or session.get('user_type') != 'Seller':
+        return redirect(url_for('login'))
+
+    conn = sql.connect('database.db')
+
+    # First, verify if this product belongs to the currently logged-in seller
+    cursor = conn.execute('SELECT seller_id FROM Product WHERE product_id = ?', (product_id,))
+    product_seller = cursor.fetchone()
+
+    if not product_seller or product_seller[0] != session.get('user_id'):
+        conn.close()
+        return redirect(url_for('seller_products'))
+
+    conn.execute('UPDATE Product SET status = 0 WHERE product_id = ?', (product_id,))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('seller_products'))
+
+
+#Temporary Code for Browse
+
+@app.route('/products')
+def browse_products():
+    '''
+    Displays a list of product categories for browsing
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Get root category (All)
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # Get all top-level categories (categories that have 'All' as parent)
+    cursor = conn.execute('''
+        SELECT c1.* 
+        FROM CategoryHierarchy c1
+        JOIN CategoryHierarchy c2 ON c1.parent_category = c2.category_id
+        WHERE c2.name = 'All'
+        ORDER BY c1.name
+    ''')
+    categories = cursor.fetchall()
+
+    # Get a few featured products for display
+    product_cursor = conn.execute('''
+        SELECT p.*, s.business_name as seller_name
+        FROM Product p
+        JOIN Sellers s ON p.seller_id = s.user_id
+        WHERE p.status = 1 AND p.quantity > 0
+        ORDER BY p.created_at DESC
+        LIMIT 10
+    ''')
+    featured_products = product_cursor.fetchall()
+
+    conn.close()
+
+    return render_template('products.html',
+                           categories=categories,
+                           featured_products=featured_products,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/products/category/<int:category_id>')
+def browse_category(category_id):
+    '''
+    Displays subcategories and products in a specific category
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # Get current category info
+    cursor = conn.execute('SELECT * FROM CategoryHierarchy WHERE category_id = ?', (category_id,))
+    current_category = cursor.fetchone()
+
+    if not current_category:
+        conn.close()
+        return redirect(url_for('browse_products'))
+
+    # Get subcategories
+    sub_cursor = conn.execute('''
+        SELECT * FROM CategoryHierarchy 
+        WHERE parent_category = ? 
+        ORDER BY name
+    ''', (category_id,))
+    subcategories = sub_cursor.fetchall()
+
+    # Get products in this category
+    product_cursor = conn.execute('''
+        SELECT p.*, s.business_name as seller_name
+        FROM Product p
+        JOIN Sellers s ON p.seller_id = s.user_id
+        WHERE p.category = ? AND p.status = 1 AND p.quantity > 0
+        ORDER BY p.created_at DESC
+    ''', (current_category['name'],))
+    products = product_cursor.fetchall()
+
+    conn.close()
+
+    return render_template('category.html',
+                           current_category=current_category,
+                           subcategories=subcategories,
+                           products=products,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/products/view/<int:product_id>')
+def view_product(product_id):
+    '''
+    Displays detailed information about a specific product
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # Get product details
+    cursor = conn.execute('''
+        SELECT p.*, c.name as category_name
+        FROM Product p
+        JOIN CategoryHierarchy c ON p.category = c.name
+        WHERE p.product_id = ? AND p.status = 1
+    ''', (product_id,))
+    product = cursor.fetchone()
+
+    if not product:
+        conn.close()
+        return redirect(url_for('browse_products'))
+
+    # Get seller info
+    seller_cursor = conn.execute('''
+        SELECT s.business_name, s.user_id
+        FROM Sellers s
+        WHERE s.user_id = ?
+    ''', (product['seller_id'],))
+    seller = seller_cursor.fetchone()
+
+    # Get product reviews
+    review_cursor = conn.execute('''
+        SELECT r.*
+        FROM Reviews r
+        JOIN Orders o ON r.order_id = o.order_id
+        WHERE o.product_id = ?
+        ORDER BY r.timestamp DESC
+    ''', (product_id,))
+    reviews = review_cursor.fetchall()
+
+    conn.close()
+
+    return render_template('product_detail.html',
+                           product=product,
+                           seller_name=seller['business_name'] if seller else "Unknown Seller",
+                           seller_id=seller['user_id'] if seller else None,
+                           reviews=reviews,
+                           user_type=session.get('user_type'))
+
+#Order Management
+@app.route('/order/create/<int:product_id>', methods=['POST'])
+def create_order(product_id):
+    '''
+    Creates a new order from product details page
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Only buyers can place orders
+    if session.get('user_type') != 'Buyer':
+        return redirect(url_for('home'))
+
+    # Get quantity from form
+    quantity = int(request.form.get('quantity', 1))
+
+    # Get product details
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    cursor = conn.execute('''
+        SELECT p.*, s.user_id as seller_id, s.business_name as seller_name
+        FROM Product p
+        JOIN Sellers s ON p.seller_id = s.user_id
+        WHERE p.product_id = ? AND p.status = 1
+    ''', (product_id,))
+    product = cursor.fetchone()
+
+    conn.close()
+
+    if not product or product['quantity'] < quantity:
+        return redirect(url_for('view_product', product_id=product_id))
+
+    # Store order info in session for review page
+    session['pending_order'] = {
+        'product_id': product_id,
+        'product_title': product['title'],
+        'seller_id': product['seller_id'],
+        'seller_name': product['seller_name'],
+        'quantity': quantity,
+        'price': product['price'],
+        'total_amount': product['price'] * quantity
+    }
+
+    return redirect(url_for('review_order'))
+
+
+@app.route('/order/review', methods=['GET'])
+def review_order():
+    '''
+    Review order details before proceeding to payment
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Only buyers can place orders
+    if session.get('user_type') != 'Buyer':
+        return redirect(url_for('home'))
+
+    # Check if there's a pending order
+    pending_order = session.get('pending_order')
+    if not pending_order:
+        return redirect(url_for('browse_products'))
+
+    return render_template('order_review.html',
+                           order=pending_order,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/order/payment', methods=['GET', 'POST'])
+def payment():
+    '''
+    Process payment for an order
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Only buyers can place orders
+    if session.get('user_type') != 'Buyer':
+        return redirect(url_for('home'))
+
+    # Check if there's a pending order
+    pending_order = session.get('pending_order')
+    if not pending_order:
+        return redirect(url_for('browse_products'))
+
+    if request.method == 'POST':
+        # Get credit card info from form
+        card_type = request.form.get('card_type')
+        card_number = request.form.get('card_number')
+        expiry_date = request.form.get('expiry_date')
+
+        # Begin transaction
+        conn = sql.connect('database.db')
+        conn.row_factory = sql.Row
+
+        try:
+            # 1. Get latest product info to ensure it's still available
+            cursor = conn.execute('''
+                SELECT * FROM Product WHERE product_id = ? AND status = 1
+            ''', (pending_order['product_id'],))
+            product = cursor.fetchone()
+
+            if not product or product['quantity'] < pending_order['quantity']:
+                conn.close()
+                return render_template('payment.html',
+                                       order=pending_order,
+                                       error="Product no longer available in requested quantity.",
+                                       user_type=session.get('user_type'))
+
+            # 2. Create the order record
+            conn.execute('''
+                INSERT INTO Orders (buyer_id, seller_id, product_id, order_date, quantity, amount)
+                VALUES (?, ?, ?, datetime('now'), ?, ?)
+            ''', (session.get('user_id'),
+                  pending_order['seller_id'],
+                  pending_order['product_id'],
+                  pending_order['quantity'],
+                  pending_order['total_amount']))
+
+            # Get the new order ID
+            cursor = conn.execute('SELECT last_insert_rowid()')
+            order_id = cursor.fetchone()[0]
+
+            # 3. Update product quantity
+            new_quantity = product['quantity'] - pending_order['quantity']
+            new_status = 2 if new_quantity == 0 else 1  # Set to 'sold' if quantity is 0
+
+            conn.execute('''
+                UPDATE Product 
+                SET quantity = ?, status = ?
+                WHERE product_id = ?
+            ''', (new_quantity, new_status, pending_order['product_id']))
+
+            # 4. Update seller balance
+            conn.execute('''
+                UPDATE Sellers
+                SET balance = balance + ?
+                WHERE user_id = ?
+            ''', (pending_order['total_amount'], pending_order['seller_id']))
+
+            # Commit the transaction
+            conn.commit()
+
+            # Clear the pending order from session
+            session.pop('pending_order', None)
+
+            # Store completed order for confirmation page
+            session['completed_order'] = {
+                'order_id': order_id,
+                'product_title': pending_order['product_title'],
+                'seller_name': pending_order['seller_name'],
+                'quantity': pending_order['quantity'],
+                'total_amount': pending_order['total_amount']
+            }
+
+            conn.close()
+            return redirect(url_for('order_complete'))
+
+        except Exception as e:
+            # Rollback in case of error
+            conn.rollback()
+            conn.close()
+            return render_template('payment.html',
+                                   order=pending_order,
+                                   error=f"An error occurred: {str(e)}",
+                                   user_type=session.get('user_type'))
+
+    # GET request - display payment form
+    # Get buyer's saved payment methods
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    cursor = conn.execute('''
+        SELECT * FROM PaymentDetails
+        WHERE user_id = ?
+        ORDER BY payment_id DESC
+    ''', (session.get('user_id'),))
+    saved_cards = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('payment.html',
+                           order=pending_order,
+                           saved_cards=saved_cards,
+                           user_type=session.get('user_type'))
+
+
+@app.route('/order/complete')
+def order_complete():
+    '''
+    Display order confirmation page
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    completed_order = session.get('completed_order')
+    if not completed_order:
+        return redirect(url_for('home'))
+
+    # Clear the completed order from session after showing confirmation
+    session.pop('completed_order', None)
+
+    return render_template('order_complete.html',
+                           order=completed_order,
+                           user_type=session.get('user_type'))
+
+@app.route('/orders')
+def view_orders():
+    '''
+    Displays orders placed by the buyer
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Only buyers can view order history
+    if session.get('user_type') != 'Buyer':
+        return redirect(url_for('home'))
+
+    buyer_id = session.get('user_id')
+
+    # Retrieve order history
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    cursor = conn.execute('''
+        SELECT o.*, p.title as product_title, s.business_name as seller_name 
+        FROM Orders o
+        JOIN Product p ON o.product_id = p.product_id
+        JOIN Sellers s ON o.seller_id = s.user_id
+        WHERE o.buyer_id = ?
+        ORDER BY o.order_date DESC
+    ''', (buyer_id,))
+    orders = cursor.fetchall()
+
+    conn.close()
+
+    return render_template('orders.html',
+                          orders=orders,
+                          user_type=session.get('user_type'))
+
+
+@app.route('/orders/view/<int:order_id>')
+def view_order_details(order_id):
+    '''
+    Displays detailed information about a specific order
+    '''
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Only buyers can view order details
+    if session.get('user_type') != 'Buyer':
+        return redirect(url_for('home'))
+
+    buyer_id = session.get('user_id')
+
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    # Get order information (verify this order belongs to the current buyer)
+    cursor = conn.execute('''
+        SELECT o.*, p.title as product_title, p.details as product_details, 
+               p.price as unit_price, s.business_name as seller_name
+        FROM Orders o
+        JOIN Product p ON o.product_id = p.product_id
+        JOIN Sellers s ON o.seller_id = s.user_id
+        WHERE o.order_id = ? AND o.buyer_id = ?
+    ''', (order_id, buyer_id))
+    order = cursor.fetchone()
+
+    if not order:
+        conn.close()
+        return redirect(url_for('view_orders'))
+
+    # Check if there's a review for this order
+    review_cursor = conn.execute('''
+        SELECT * FROM Reviews
+        WHERE order_id = ?
+    ''', (order_id,))
+    review = review_cursor.fetchone()
+
+    conn.close()
+
+    return render_template('order_detail.html',
+                          order=order,
+                          review=review,
+                          user_type=session.get('user_type'))
+
 
 
 if __name__ == "__main__":

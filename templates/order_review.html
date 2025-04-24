@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Review Order</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/home">NittanyBusiness</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/home">Home</a>
+            </li>
+            <!-- BUYER -->
+            {% if user_type == 'Buyer' %}
+              <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+              <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+              <li class="nav-item"><a class="nav-link active" href="/orders">Orders</a></li>
+            {% endif %}
+          </ul>
+
+          <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Review Your Order</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Order Summary</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Product:</strong> {{ order.product_title }}</p>
+                        <p><strong>Seller:</strong> {{ order.seller_name }}</p>
+                        <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Unit Price:</strong> ${{ order.price }}</p>
+                        <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <p class="mb-0">Please review your order details before proceeding to payment.</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/order/payment" class="btn btn-primary">Proceed to Payment</a>
+                    <a href="/products/view/{{ order.product_id }}" class="btn btn-secondary ml-2">Back to Product</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>
