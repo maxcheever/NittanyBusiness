@@ -11,8 +11,7 @@
     <div class="container mt-5">
         <h2 class="mb-4">Leave a Review for Your Purchase</h2>
 
-        <form action="/submit_review" method="POST">
-            <!-- Hidden order_id from backend -->
+        <form action="{{ url_for('submit_review', order_id=order_id) }}" method="POST">
             <input type="hidden" name="order_id" value="{{ order_id }}">
 
             <div class="form-group">

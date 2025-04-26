@@ -48,6 +48,7 @@
                     <p><strong>Order ID:</strong> {{ order.order_id }}</p>
                     <p><strong>Product:</strong> {{ order.product_title }}</p>
                     <p><strong>Seller:</strong> {{ order.seller_name }}</p>
+                    <p><strong>Seller Rating:</strong> {{ '%.1f'|format(order.seller_rating) }}/5</p>
                     <p><strong>Quantity:</strong> {{ order.quantity }}</p>
                     <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
                 </div>

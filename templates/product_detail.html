@@ -60,6 +60,7 @@
                         <p><strong>Price:</strong> ${{ product.price }}</p>
                         <p><strong>Available Quantity:</strong> {{ product.quantity }}</p>
                         <p><strong>Seller:</strong> {{ seller_name }}</p>
+                        <p><strong>Seller Rating:</strong> {{ '%.1f'|format(seller_rating) }}/5</p>
                         <hr>
                         <h5>Product Description:</h5>
                         <p>{{ product.details }}</p>

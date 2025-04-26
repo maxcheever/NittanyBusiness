@@ -91,7 +91,7 @@ def create_tables():
                 bank_routing_number TEXT NOT NULL,
                 bank_account_number TEXT NOT NULL,
                 balance REAL NOT NULL,
-                avg_rating REAL DEFAULT 0,
+                avg_rating REAL NOT NULL DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id),
                 FOREIGN KEY (business_address) REFERENCES Address(address_id)
             )

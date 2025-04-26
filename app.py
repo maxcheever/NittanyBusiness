@@ -448,7 +448,7 @@ def view_product(product_id):
 
     # Get seller info
     seller_cursor = conn.execute('''
-        SELECT s.business_name, s.user_id
+        SELECT s.business_name, s.user_id, s.avg_rating
         FROM Sellers s
         WHERE s.user_id = ?
     ''', (product['seller_id'],))
@@ -470,6 +470,7 @@ def view_product(product_id):
                            product=product,
                            seller_name=seller['business_name'] if seller else "Unknown Seller",
                            seller_id=seller['user_id'] if seller else None,
+                           seller_rating=seller['avg_rating'] if seller else None,
                            reviews=reviews,
                            user_type=session.get('user_type'))
 
@@ -624,6 +625,7 @@ def payment():
             session['completed_order'] = {
                 'order_id': order_id,
                 'product_title': pending_order['product_title'],
+                'seller_id': pending_order['seller_id'],
                 'seller_name': pending_order['seller_name'],
                 'quantity': pending_order['quantity'],
                 'total_amount': pending_order['total_amount']
@@ -670,6 +672,13 @@ def order_complete():
         return redirect(url_for('login'))
 
     completed_order = session.get('completed_order')
+    # Retrieve the average rating for the product
+    conn = sql.connect('database.db')
+    print(completed_order)
+    print(completed_order['seller_id'])
+    cursor = conn.execute('SELECT avg_rating FROM Sellers WHERE user_id = ?', (completed_order['seller_id'],))
+    completed_order['seller_rating'] = cursor.fetchone()[0]
+    conn.close()
     if not completed_order:
         return redirect(url_for('home'))
 
@@ -747,6 +756,10 @@ def view_order_details(order_id):
         conn.close()
         return redirect(url_for('view_orders'))
 
+    # Retrieve seller's average rating
+    rating_row = conn.execute('SELECT avg_rating FROM Sellers WHERE user_id = ?', (order['seller_id'],)).fetchone()
+    seller_rating = rating_row[0] if rating_row else 0
+
     # Check if there's a review for this order
     review_cursor = conn.execute('''
         SELECT * FROM Reviews
@@ -759,6 +772,7 @@ def view_order_details(order_id):
     return render_template('order_detail.html',
                           order=order,
                           review=review,
+                          seller_rating=seller_rating,
                           user_type=session.get('user_type'))
 
 @app.route('/review/<int:order_id>')
@@ -771,16 +785,15 @@ def leave_review(order_id):
     else:
         return redirect(url_for('home'))
 
-@app.route('/submit_review', methods=['POST'])
-def submit_review():
+@app.route('/submit_review/<int:order_id>', methods=['POST'])
+def submit_review(order_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
     # Retrieve relevant information pertaining to the product review
-    order_id = request.form['order_id']
     rating = int(request.form['rating'])
     review_text = request.form['review_text']
-    timestamp = datetime.now()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     # Connect to the database to update
     conn = sql.connect('database.db')
@@ -796,7 +809,7 @@ def submit_review():
         if result:
             seller_id = result[0]
             # Update the seller's average rating
-            cursor.execute('SELECT AVG(rating) FROM Reviews WHERE order_id IN (SELECT order_id FROM Orders WHERE seller_id = ?)', (seller_id,))
+            cursor.execute('SELECT AVG(rating) FROM Reviews WHERE order_id IN (SELECT order_id FROM Orders WHERE seller_id = ?)',(seller_id,))
             avg_rating = cursor.fetchone()[0] or 0
             cursor.execute('UPDATE Sellers SET avg_rating = ? WHERE user_id = ?', (avg_rating, seller_id))
         conn.commit()
@@ -808,7 +821,7 @@ def submit_review():
     finally:
         conn.close()
 
-    return redirect(url_for('order_complete'))
+    return redirect(url_for('view_order_details', order_id=order_id))
 
 if __name__ == "__main__":
     app.run()
