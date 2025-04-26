@@ -17,7 +17,7 @@ def initialize_database():
     populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
     populate_table_from_csv('Buyers', './NittanyBusinessDataset_v3/Buyers.csv')
     populate_table_from_csv('PaymentDetails', './NittanyBusinessDataset_v3/Credit_Cards.csv', transform_func=transform_payment_row)
-    populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv')
+    populate_table_from_csv('Sellers', './NittanyBusinessDataset_v3/Sellers.csv', transform_func=transform_seller_row)
     populate_table_from_csv('HelpDesk', './NittanyBusinessDataset_v3/Requests.csv', transform_func=transform_helpdesk_row)
     populate_table_from_csv('Product', './NittanyBusinessDataset_v3/Product_Listings.csv', transform_func=transform_product_row)
     populate_table_from_csv('Reviews', './NittanyBusinessDataset_v3/Reviews.csv', transform_func=transform_review_row)
@@ -91,6 +91,7 @@ def create_tables():
                 bank_routing_number TEXT NOT NULL,
                 bank_account_number TEXT NOT NULL,
                 balance REAL NOT NULL,
+                avg_rating REAL DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id),
                 FOREIGN KEY (business_address) REFERENCES Address(address_id)
             )
@@ -375,6 +376,12 @@ def transform_order_row(row):
     quantity = int(row[5].strip())
     amount = float(row[6].strip())
     return [order_id, buyer_id, seller_id, product_id, order_date, quantity, amount]
+
+def transform_seller_row(row):
+    """
+    Transform a Sellers.csv row to include default avg_rating = 0.
+    """
+    return row + [0]
 
 def populate_category_hierarchy(csv_file):
     """

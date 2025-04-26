@@ -82,14 +82,16 @@
                                                     <span class="text-secondary">☆</span>
                                                 {% endfor %}
                                             </h6>
-                                            <p>{{ review.comments }}</p>
+                                            <p>{{ review.review_text }}</p>
                                             <small class="text-muted">Submitted on {{ review.timestamp }}</small>
                                         </div>
                                     </div>
                                 {% else %}
                                     <h5>Product Review</h5>
                                     <p>You haven't reviewed this product yet.</p>
-                                    <a href="/review/create/{{ order.order_id }}" class="btn btn-primary">Write a Review</a>
+                                    <a href="{{ url_for('leave_review', order_id=order.order_id) }}" class="btn btn-success">
+                                        Write a Review
+                                    </a>
                                 {% endif %}
                             </div>
                         </div>

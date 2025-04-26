@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from init_db import initialize_database, hash_password
+from datetime import datetime
 import sqlite3 as sql
 
 app = Flask(__name__)
@@ -760,7 +761,54 @@ def view_order_details(order_id):
                           review=review,
                           user_type=session.get('user_type'))
 
+@app.route('/review/<int:order_id>')
+def leave_review(order_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    # Make sure that the user is a buyer since only buyers can leave reviews
+    if session.get('user_type') == 'Buyer':
+        return render_template('review.html', order_id=order_id)
+    else:
+        return redirect(url_for('home'))
 
+@app.route('/submit_review', methods=['POST'])
+def submit_review():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Retrieve relevant information pertaining to the product review
+    order_id = request.form['order_id']
+    rating = int(request.form['rating'])
+    review_text = request.form['review_text']
+    timestamp = datetime.now()
+
+    # Connect to the database to update
+    conn = sql.connect('database.db')
+    cursor = conn.cursor()
+
+    try:
+        # Insert the review into the database (Reviews schema)
+        cursor.execute('INSERT INTO Reviews (order_id, rating, review_text, timestamp) VALUES (?, ?, ?, ?)', (order_id, rating, review_text, timestamp))
+        # Retrieve the seller's ID
+        cursor.execute('SELECT seller_id FROM Orders WHERE order_id = ?', (order_id,))
+
+        result = cursor.fetchone()
+        if result:
+            seller_id = result[0]
+            # Update the seller's average rating
+            cursor.execute('SELECT AVG(rating) FROM Reviews WHERE order_id IN (SELECT order_id FROM Orders WHERE seller_id = ?)', (seller_id,))
+            avg_rating = cursor.fetchone()[0] or 0
+            cursor.execute('UPDATE Sellers SET avg_rating = ? WHERE user_id = ?', (avg_rating, seller_id))
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+
+    return redirect(url_for('order_complete'))
 
 if __name__ == "__main__":
     app.run()

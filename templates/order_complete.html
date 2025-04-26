@@ -55,6 +55,10 @@
             <div class="mt-4">
                 <a href="/orders" class="btn btn-primary">View My Orders</a>
                 <a href="/products" class="btn btn-success ml-2">Continue Shopping</a>
+                <!-- Button for viewing order details -->
+                <a href="{{ url_for('view_order_details', order_id=order.order_id) }}" class="btn btn-outline-info ml-2">
+                    View Order Details
+                </a>
             </div>
         </div>
     </div>
