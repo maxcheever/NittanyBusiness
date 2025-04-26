@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <title>Seller Feedback</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/home">NittanyBusiness</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
+        <li class="nav-item active"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
+      </ul>
+      <a href="/logout" class="btn btn-outline-danger">Log Out</a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h2>Seller Feedback</h2>
+    {% if reviews and reviews|length > 0 %}
+      <div class="list-group">
+        {% for r in reviews %}
+          <div class="list-group-item mb-3">
+            <div class="d-flex justify-content-between">
+              <h5 class="mb-1">{{ r.product_title }}</h5>
+              <small class="text-muted">{{ r.timestamp }}</small>
+            </div>
+            <p class="mb-1">
+              {% for i in range(r.rating) %}
+                <span class="text-warning">★</span>
+              {% endfor %}
+              {% for i in range(5 - r.rating) %}
+                <span class="text-secondary">☆</span>
+              {% endfor %}
+            </p>
+            <p class="mb-0">{{ r.review_text }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info">No feedback yet. Check back once customers submit reviews!</div>
+    {% endif %}
+    <a href="/seller/products" class="btn btn-secondary mt-4">Back to Products</a>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -823,5 +823,23 @@ def submit_review(order_id):
 
     return redirect(url_for('view_order_details', order_id=order_id))
 
+@app.route('/seller/feedback')
+def seller_feedback():
+    # Ensure that user is logged into platform and that they are a seller
+    if not session.get('logged_in') or session['user_type'] != 'Seller':
+        return redirect(url_for('login'))
+
+    seller_id = session['user_id']
+
+    # Connect to database to pull reviews from buyers
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+    reviews = conn.execute('SELECT r.rating, r.review_text, r.timestamp, o.order_id, p.title as product_title FROM Reviews r JOIN Orders o ON r.order_id = o.order_id JOIN Product p ON o.product_id = p.product_id WHERE o.seller_id = ? ORDER BY r.timestamp DESC', (seller_id,)).fetchall()
+    conn.close()
+
+    return render_template('seller_feedback.html', reviews=reviews)
+
+
+
 if __name__ == "__main__":
     app.run()
