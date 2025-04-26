@@ -40,9 +40,11 @@
           </ul>
 
           <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" name="query" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-          </form>
+          <input class="form-control mr-sm-2" type="search" placeholder="Search keywords" name="query" aria-label="Search">
+          <input class="form-control mr-sm-2" type="number" name="min_price" placeholder="Min Price" step="0.01">
+          <input class="form-control mr-sm-2" type="number" name="max_price" placeholder="Max Price" step="0.01">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
 
           <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
         </div>
