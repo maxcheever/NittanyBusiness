@@ -3,97 +3,90 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Dashboard</title>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/home">NittanyBusiness</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="/home">Home</a>
-            </li>
-            <!-- BUYER -->
-            {% if user_type == 'Buyer' %}
-              <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-              <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
-              <li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
-            <!-- SELLER -->
-            {% elif user_type == 'Seller' %}
-                <li class="nav-item"><a class="nav-link" href="/seller/profile">Profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
-              <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
-            <!-- HELPDESK -->
-            {% elif user_type == 'HelpDesk' %}
-              <li class="nav-item"><a class="nav-link active" href="/helpdesk/profile">Profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="/helpdesk/requests">Requests</a></li>
-              <li class="nav-item"><a class="nav-link" href="/helpdesk/users">User Mgmt</a></li>
-              <li class="nav-item"><a class="nav-link" href="/helpdesk/admin">Admin</a></li>
-            {% endif %}
-          </ul>
+<body class="bg-light">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/home">NittanyBusiness</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link active" href="/home">Home</a></li>
+          <!-- BUYER -->
+          {% if user_type == 'Buyer' %}
+            <li class="nav-item"><a class="nav-link" href="/buyer/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+            <li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+          <!-- SELLER -->
+          {% elif user_type == 'Seller' %}
+            <li class="nav-item"><a class="nav-link" href="/seller/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
+          <!-- HELPDESK -->
+          {% elif user_type == 'HelpDesk' %}
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/requests">Requests</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/users">User Mgmt</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/admin">Admin</a></li>
+          {% endif %}
+        </ul>
+        <!-- Search and Price Range for Buyer -->
         {% if user_type == 'Buyer' %}
         <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search keywords" name="query" aria-label="Search">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" name="query" aria-label="Search">
           <input class="form-control mr-sm-2" type="number" name="min_price" placeholder="Min Price" step="0.01">
           <input class="form-control mr-sm-2" type="number" name="max_price" placeholder="Max Price" step="0.01">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
+        <!-- Log Out Button -->
         {% endif %}
-
-          <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
-        </div>
+        <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
       </div>
-    </nav>
-    <div class="container-sm">
-        <div class="card-body" align="center">
-            <h1>Welcome, {{ session['name'] }}!</h1>
-            <!-- BUYER -->
-            {% if user_type == 'Buyer' %}
-                <div class="mt-4">
-                    <h3>Buyer Dashboard</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item"><a href="/buyer/profile">View/Edit Personal Info</a></li>
-                        <li class="list-group-item"><a href="/products">Browse Categories/Products</a></li>
-                        <li class="list-group-item"><a href="/cart">Manage Shopping Cart</a></li>
-                        <li class="list-group-item"><a href="/orders">Place/View Orders</a></li>
-                    </ul>
-                </div>
-            <!-- SELLER -->
-            {% elif user_type == 'Seller' %}
-                <div class="mt-4">
-                    <h3>Seller Dashboard</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item"><a href="/seller/profile">View/Edit Personal Info</a></li>
-                        <li class="list-group-item"><a href="/seller/products">View Your Products</a></li>
-                        <li class="list-group-item"><a href="/seller/feedback">Review Buyer Feedback</a></li>
-                    </ul>
-                </div>
-            <!-- HELPDESK -->
-            {% elif user_type == 'HelpDesk' %}
-                <div class="mt-4">
-                    <h3>HelpDesk Dashboard</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item"><a href="/helpdesk/profile">View/Edit Personal Info</a></li>
-                        <li class="list-group-item"><a href="/helpdesk/requests">Pending Requests</a></li>
-                        <li class="list-group-item"><a href="/helpdesk/users">User Management</a></li>
-                        <li class="list-group-item"><a href="/helpdesk/admin">System Admin Tasks</a></li>
-                    </ul>
-                </div>
-            {% endif %}
-            <a href="/logout" class="btn btn-danger mt-3">Log Out</a>
-        </div>
     </div>
+  </nav>
+  <!-- Dashboard -->
+  <div class="container mt-3 d-flex justify-content-center">
+    <div class="card shadow-sm text-center p-4" style="width:100%; max-width: 480px;">
+      <h1 class="card-title mb-4">Welcome, {{ session['name'] }}!</h1>
+      <!-- BUYER -->
+      {% if user_type == 'Buyer' %}
+        <h5 class="mb-3">Buyer Dashboard</h5>
+        <ul class="list-group mb-4">
+          <li class="list-group-item"><a href="/buyer/profile">View/Edit Personal Info</a></li>
+          <li class="list-group-item"><a href="/products">Browse Products</a></li>
+          <li class="list-group-item"><a href="/cart">Manage Shopping Cart</a></li>
+          <li class="list-group-item"><a href="/orders">Place/View Orders</a></li>
+        </ul>
+      <!-- SELLER  -->
+      {% elif user_type == 'Seller' %}
+        <h5 class="mb-3">Seller Dashboard</h5>
+        <ul class="list-group mb-4">
+          <li class="list-group-item"><a href="/seller/profile">View/Edit Personal Info</a></li>
+          <li class="list-group-item"><a href="/seller/products">View Your Products</a></li>
+          <li class="list-group-item"><a href="/seller/feedback">Review Feedback</a></li>
+        </ul>
+      <!-- HELPDESK -->
+      {% elif user_type == 'HelpDesk' %}
+        <h5 class="mb-3">HelpDesk Dashboard</h5>
+        <ul class="list-group mb-4">
+          <li class="list-group-item"><a href="/helpdesk/requests">Pending Requests</a></li>
+          <li class="list-group-item"><a href="/helpdesk/users">User Management</a></li>
+          <li class="list-group-item"><a href="/helpdesk/admin">Admin Tasks</a></li>
+        </ul>
+      {% endif %}
+      <!-- Log Out Button -->
+      <a href="/logout" class="btn btn-primary btn-block">Log Out</a>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>
-{% if not user_type %}
-  <script>window.location.href = "/";</script>
-{% endif %}
 </html>
