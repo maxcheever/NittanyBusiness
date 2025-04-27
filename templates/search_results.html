@@ -1,27 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Browse Products</title>
+  <meta charset="UTF-8">
+  <title>Search Results</title>
   <link rel="stylesheet"
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
         crossorigin="anonymous">
   <style>
-    .sidebar {
-      border-right: 1px solid #ddd;
-      padding: 1rem;
-      height: 100%;
-      background-color: #f8f9fa;
-    }
-    .category, .subcategory {
-      cursor: pointer;
-    }
-    .subcategory {
-      margin-left: 1rem;
-      font-size: 0.9rem;
-    }
     .product-card {
       border: 1px solid #ddd;
       border-radius: 5px;
@@ -68,64 +53,21 @@
     </div>
   </nav>
 
-  <!-- Main Layout -->
-  <div class="container-fluid mt-4">
-    <div class="row">
-      <!-- Sidebar for Categories -->
-      <div class="col-md-3 sidebar">
-        <h5>Categories</h5>
-        <ul class="list-unstyled" id="category-list">
-          {% for category in categories %}
-            <li>
-              <span class="category font-weight-bold" onclick="loadSubcategories({{ category['category_id'] }})">{{ category['name'] }}</span>
-                <ul id="subcategories-{{ category['category_id'] }}" class="list-unstyled"></ul>
-
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <!-- Product Display Area -->
-      <div class="col-md-9">
-        <h4 id="product-title">All Products</h4>
-        <div id="product-list">
-          <h4>All Products</h4>
-          {% for product in products %}
-            <div class="product-card">
-              <h5>{{ product.title }}</h5>
-              <p><strong>Price:</strong> ${{ product.price }}</p>
-              <p><strong>Seller ID:</strong> {{ product.seller_id }}</p>
-            </div>
-          {% endfor %}
+  <div class="container mt-4">
+    <h3>Search Results for "{{ query }}"</h3>
+    {% if results %}
+      {% for p in results %}
+        <div class="product-card">
+          <h5>{{ p['title'] }}</h5>
+          <p><strong>Price:</strong> ${{ p['price'] }}</p>
+          <p><strong>Seller ID:</strong> {{ p['seller_id'] }}</p>
+          <p><strong>Category:</strong> {{ p['category'] }}</p>
+          <p><strong>Available:</strong> {{ "Yes" if p['quantity'] > 0 else "Out of stock" }}</p>
         </div>
-      </div>
-    </div>
+      {% endfor %}
+    {% else %}
+      <p>No matching products found.</p>
+    {% endif %}
   </div>
-
-  <script>
-function loadSubcategories(categoryId) {
-  fetch(`/subcategories/${categoryId}`)
-    .then(res => res.text())
-    .then(html => {
-      const ul = document.getElementById(`subcategories-${categoryId}`);
-      ul.innerHTML = html;
-    });
-}
-
-function loadProducts(categoryId) {
-  fetch(`/products/${categoryId}`)
-    .then(res => res.text())
-    .then(html => {
-      const productList = document.getElementById('product-list');
-      productList.innerHTML = html;
-    });
-}
-
-</script>
-
 </body>
-{% if not user_type %}
-  <script>window.location.href = "/";</script>
-{% endif %}
 </html>
-

@@ -55,6 +55,107 @@ def logout():
 # def signup():
 #     return render_template('signup.html')
 
+@app.route('/products')
+def view_products():
+    if 'user_type' not in session:
+        return redirect('/')
+
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+    cur = conn.cursor()
+
+    # Get all top-level categories (parent_category is NULL)
+    cur.execute("SELECT category_id, name FROM CategoryHierarchy WHERE parent_category IS NULL")
+    categories = cur.fetchall()
+
+    # Get all products
+    cur.execute("SELECT * FROM Product")
+    products = cur.fetchall()
+
+    return render_template('products.html',
+                           categories=categories,
+                           products=products,
+                           user_type=session['user_type'],
+                           name=session['name'])
+
+
+@app.route('/subcategories/<int:category_id>')
+def get_subcategories(category_id):
+    conn = sql.connect('database.db')
+    cur = conn.cursor()
+    cur.execute("SELECT category_id, name FROM CategoryHierarchy WHERE parent_category = ?", (category_id,))
+    subcats = cur.fetchall()
+
+    html = ""
+    for row in subcats:
+        html += f"<li class='subcategory' onclick=\"loadProducts({row[0]})\">{row[1]}</li>"
+    return html
+
+
+@app.route('/products/<int:category_id>')
+def get_products_by_category(category_id):
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+    cur = conn.cursor()
+
+    cur.execute("SELECT name FROM CategoryHierarchy WHERE category_id = ?", (category_id,))
+    row = cur.fetchone()
+    category_name = row['name'] if row else 'Selected'
+
+    cur.execute("SELECT * FROM Product WHERE category = (SELECT name FROM CategoryHierarchy WHERE category_id = ?)", (category_id,))
+    products = cur.fetchall()
+
+    html = f"<h4>{category_name} Products</h4>"
+    for p in products:
+        html += f"""
+            <div class='product-card'>
+                <h5>{p['title']}</h5>
+                <p><strong>Price:</strong> ${p['price']}</p>
+                <p><strong>Seller ID:</strong> {p['seller_id']}</p>
+            </div>
+        """
+    return html
+
+import sqlite3
+@app.route('/search')
+def search():
+    if 'user_type' not in session:
+        return redirect('/')
+
+    query = request.args.get('query', '').lower()
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    sql = '''
+        SELECT p.*
+        FROM Product p
+        LEFT JOIN CategoryHierarchy c ON p.category = c.name
+        LEFT JOIN Users u ON p.seller_id = u.user_id
+        WHERE (LOWER(p.title) LIKE ? OR LOWER(p.details) LIKE ? OR LOWER(p.category) LIKE ? OR LOWER(u.name) LIKE ?)
+    '''
+    params = [f'%{query}%'] * 4
+
+    if min_price is not None:
+        sql += ' AND p.price >= ?'
+        params.append(min_price)
+    if max_price is not None:
+        sql += ' AND p.price <= ?'
+        params.append(max_price)
+
+    cur.execute(sql, params)
+    results = cur.fetchall()
+
+    return render_template('search_results.html',
+                           results=results,
+                           query=query,
+                           user_type=session['user_type'],
+                           name=session['name'])
+
+
 def get_user_type(username: str):
     conn = sql.connect('database.db')
     cursor = conn.execute(
