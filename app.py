@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from init_db import initialize_database, hash_password
 from datetime import datetime
 import sqlite3 as sql
@@ -32,6 +32,14 @@ def login():
             return render_template('index.html', message='Username and/or password is incorrect. Please try again.')
     return render_template('index.html')
 
+@app.route('/logout')
+def logout():
+    '''
+        Clears the session and redirects to login page
+    '''
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route('/home')
 def home():
     '''
@@ -43,17 +51,63 @@ def home():
     user_type = session.get('user_type')
     return render_template('home.html', user_type=user_type)
 
-@app.route('/logout')
-def logout():
+@app.route('/buyer/profile', methods=['GET', 'POST'])
+@app.route('/seller/profile', methods=['GET', 'POST'])
+def profile():
     '''
-        Clears the session and redirects to login page
-    '''
-    session.clear()
-    return redirect(url_for('login'))
+    Displays and updates data about the user
 
-# @app.route('/signup')
-# def signup():
-#     return render_template('signup.html')
+    If the request method == POST:
+        — Updates the user's name, phone number, and password (if applicable) in the database baed on inputted form data
+        — Updates the session with the new name
+        — Refetches updated user information to display
+        — Renders the user profile page with a success message upon saving changes
+    If the request method == GET:
+        — Retrieve the user's information (user ID, name, phone) from the database
+        — Displays user profile page populated with the current user information
+
+    Redirects to the login page if the user is not logged in
+
+    Returns:
+        Rendered HTML page (user_profile.html)
+    '''
+    # Redirect to login page if user is not logged in
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    # Current user's ID
+    user_id = session['user_id']
+    # Connect to database
+    conn = sql.connect('database.db')
+    conn.row_factory = sql.Row
+
+    if request.method == 'POST':
+        # Extract updated data from the form
+        name = request.form['name']
+        phone = request.form['phone']
+        new_password = hash_password(request.form['password'])
+
+        # If a new password is provided, update all information fields
+        if new_password:
+            conn.execute('UPDATE Users SET name = ?, phone = ?, password = ? WHERE user_id = ?', (name, phone, new_password, user_id))
+        else:
+            # Otherwise update only name and phone
+            conn.execute('UPDATE Users SET name = ?, phone = ? WHERE user_id = ?', (name, phone, user_id))
+        conn.commit()
+
+        # Update user's name in the session
+        session['name'] = name
+        # Re-fetch updated user data to display latest data
+        cur = conn.execute('SELECT user_id, name, phone FROM Users WHERE user_id = ?', (user_id,))
+        user = cur.fetchone()
+        conn.close()
+        return render_template('user_profile.html', user=user, user_type=session['user_type'], message='Your profile has been updated successfully!')
+    else:
+        # GET — Fetch current user information
+        cur = conn.execute('SELECT user_id, name, phone FROM Users WHERE user_id = ?', (user_id,))
+        user = cur.fetchone()
+        conn.close()
+        return render_template('user_profile.html', user=user, user_type=session['user_type'])
 
 @app.route('/products')
 def view_products():
@@ -939,7 +993,6 @@ def seller_feedback():
     conn.close()
 
     return render_template('seller_feedback.html', reviews=reviews)
-
 
 
 if __name__ == "__main__":

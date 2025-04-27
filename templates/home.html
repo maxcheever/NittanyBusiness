@@ -29,6 +29,7 @@
               <li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
             <!-- SELLER -->
             {% elif user_type == 'Seller' %}
+                <li class="nav-item"><a class="nav-link" href="/seller/profile">Profile</a></li>
               <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
               <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
             <!-- HELPDESK -->
@@ -69,6 +70,7 @@
                 <div class="mt-4">
                     <h3>Seller Dashboard</h3>
                     <ul class="list-group">
+                        <li class="list-group-item"><a href="/seller/profile">View/Edit Personal Info</a></li>
                         <li class="list-group-item"><a href="/seller/products">View Your Products</a></li>
                         <li class="list-group-item"><a href="/seller/feedback">Review Buyer Feedback</a></li>
                     </ul>

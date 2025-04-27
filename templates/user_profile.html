@@ -1,10 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <title>User Profile</title>
 </head>
 <body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/home">NittanyBusiness</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
+          {% if user_type == 'Buyer' %}
+            <li class="nav-item"><a class="nav-link active" href="/buyer/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+            <li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+          {% elif user_type == 'Seller' %}
+            <li class="nav-item"><a class="nav-link active" href="/seller/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
+          {% elif user_type == 'HelpDesk' %}
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/requests">Requests</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/users">User Mgmt</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/admin">Admin</a></li>
+          {% endif %}
+        </ul>
+        <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+      </div>
+    </div>
+  </nav>
 
+  <div class="container mt-5">
+    <h2>Update Profile</h2>
+    <form action="" method="post">
+      <div class="form-group">
+        <label for="user_id">Email</label>
+        <input type="email" class="form-control" id="user_id" name="user_id" value="{{ user.user_id }}" readonly>
+      </div>
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="password">New Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+        <small class="form-text text-muted">Leave blank to keep current password (not displayed).</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="/home" class="btn btn-secondary ml-2">Cancel</a>
+    </form>
+    {%  if message %}
+        <p style="color: darkgreen; margin-top: 10px">{{ message }}</p>
+    {% endif %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
