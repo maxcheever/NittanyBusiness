@@ -8,10 +8,11 @@ def initialize_database():
     create_tables()
 
     # making these global so they can be used to populate Users and Address (see rationale above load_buyers_info)
-    global buyers_info, sellers_info, zipcode_dict
+    global buyers_info, sellers_info, zipcode_dict, helpdesk_info
     buyers_info = load_buyers_info()
     sellers_info = load_sellers_info()
     zipcode_dict = load_zipcode_info()
+    helpdesk_info = load_helpdesk_info()
 
     populate_table_from_csv('Users', './NittanyBusinessDataset_v3/Users.csv', transform_func=transform_user_row)
     populate_table_from_csv('Address', './NittanyBusinessDataset_v3/Address.csv', transform_func=transform_address_row)
@@ -256,6 +257,21 @@ def load_sellers_info():
             info[email] = (business_name, business_address)
     return info
 
+def load_helpdesk_info():
+    """
+    Load helpdesk user emails from Requests.csv.
+    """
+    emails = set()
+    with open('./NittanyBusinessDataset_v3/Requests.csv', 'r', newline='') as file:
+        reader = csv.reader(file)
+        next(reader)  # skip header
+        for row in reader:
+            staff_email = row[2].strip()
+            if staff_email:
+                emails.add(staff_email)
+    return emails
+
+
 def load_zipcode_info():
     """
     Load zipcode info from Zipcode_Info.csv.
@@ -287,7 +303,12 @@ def transform_user_row(row):
     hashed = hash_password(pwd)
 
     # check if user exists in sellers or buyers info
-    if email in sellers_info:
+    if email in helpdesk_info:
+        role = 'HelpDesk'
+        name = email.split('@')[0] if '@' in email else email
+        address_id = 1
+        phone = None
+    elif email in sellers_info:
         role = 'Seller'
         name, address_id = sellers_info[email]
         phone = None
