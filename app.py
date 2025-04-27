@@ -302,26 +302,38 @@ def check_password(username: str, password: str) -> bool:
 def register_user():
     if request.method == 'POST':
         connection = sql.connect('database.db')
-        # Extract user inputs from the form
+        cursor = connection.cursor()
+
+        # Extract user inputs
         username = request.form['username']
         password = request.form['password']
+        name     = request.form['name']
+        role     = request.form['role']
+
+        # Check if email is already in the database
+        cursor.execute('SELECT 1 FROM Users WHERE user_id = ?', (username,))
+        if cursor.fetchone():
+            connection.close()
+            return render_template('registration.html', message='Registration failed: email already in use.')
+
+        # Otherwise, insert new user into the database
         hashed_password = hash_password(password)
-        name = request.form['name']
-        role = request.form['role']
         try:
-            if check_password(username, password):
-                connection.execute('INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?)', (username, hashed_password, role, name, None, None))
-                connection.commit()
-                connection.close()
-                return redirect(url_for('login'))
-            else:
-                return render_template('registration.html', message='Registration Failed. User Already Registered.')
-        except:
-            return render_template('registration.html', message='Registration Failed. Please try again.')
+            cursor.execute(
+                'INSERT INTO Users (user_id, password, role, name, address_id, phone) ' 'VALUES (?, ?, ?, ?, ?, ?)', (username, hashed_password, role, name, None, None))
+            connection.commit()
+        except Exception as e:
+            connection.rollback()
+            connection.close()
+            return render_template('registration.html', message='Registration failed: please try again.')
+
+        connection.close()
+        return redirect(url_for('login'))
+
+    # GET — Just display user registration form
     return render_template('registration.html')
 
 # Product Listing Management
-
 @app.route('/seller/products')
 def seller_products():
     '''
