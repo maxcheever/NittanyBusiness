@@ -53,6 +53,7 @@ def home():
 
 @app.route('/buyer/profile', methods=['GET', 'POST'])
 @app.route('/seller/profile', methods=['GET', 'POST'])
+@app.route('/helpdesk/profile', methods=['GET', 'POST'])
 def profile():
     '''
     Displays and updates data about the user

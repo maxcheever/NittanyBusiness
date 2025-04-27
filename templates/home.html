@@ -34,18 +34,20 @@
               <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
             <!-- HELPDESK -->
             {% elif user_type == 'HelpDesk' %}
+              <li class="nav-item"><a class="nav-link active" href="/helpdesk/profile">Profile</a></li>
               <li class="nav-item"><a class="nav-link" href="/helpdesk/requests">Requests</a></li>
               <li class="nav-item"><a class="nav-link" href="/helpdesk/users">User Mgmt</a></li>
               <li class="nav-item"><a class="nav-link" href="/helpdesk/admin">Admin</a></li>
             {% endif %}
           </ul>
-
-          <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
+        {% if user_type == 'Buyer' %}
+        <form class="form-inline my-2 my-lg-0" action="/search" method="GET">
           <input class="form-control mr-sm-2" type="search" placeholder="Search keywords" name="query" aria-label="Search">
           <input class="form-control mr-sm-2" type="number" name="min_price" placeholder="Min Price" step="0.01">
           <input class="form-control mr-sm-2" type="number" name="max_price" placeholder="Max Price" step="0.01">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
+        {% endif %}
 
           <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
         </div>
@@ -80,6 +82,7 @@
                 <div class="mt-4">
                     <h3>HelpDesk Dashboard</h3>
                     <ul class="list-group">
+                        <li class="list-group-item"><a href="/helpdesk/profile">View/Edit Personal Info</a></li>
                         <li class="list-group-item"><a href="/helpdesk/requests">Pending Requests</a></li>
                         <li class="list-group-item"><a href="/helpdesk/users">User Management</a></li>
                         <li class="list-group-item"><a href="/helpdesk/admin">System Admin Tasks</a></li>
