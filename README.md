@@ -1,34 +1,105 @@
-# Phase 2 Progress Review
+## Project Description / Context
 
-## Context
-Phase II of the NittanyBusiness Project requires us to handle the two following tasks: Database Population and User Login. Database population requires us to create tables with the necessary primary keys and populate the tables with the data from the provided CSV files. Each password in the CSV file also needs be securely hashed. In our implementation, we chose to use SHA-256. For User Login, we are asked to create a login page for users (seller, buyer, and help desk). The system recognizes a user by their email (username) and password. For security reasons, passwords must be hashed when stored and must not be visible while being entered. SHA-256 was used again for password hashing and masking was applied to ensure that passwords are concealed during user input. Additionally, for unsuccessful login attempts, we output an error message letting the user that their username and/or password is incorrect. 
+NittanyBusiness is a prototype web application for a B2B online marketplace, designed to streamline procurement for small and medium-sized enterprises (SMEs) by connecting them with trusted suppliers. Built with Flask, Python, and SQLite, this system supports role-based access (Buyer, Seller, HelpDesk) and demonstrates core e-commerce flows (user authentication, category browsing, product listings, order processing, reviews, and search) backed by a relational database design.
 
-## Files
-1. `app.py`
-- This is the main Flask application file that starts the web server and defines the routes for the application. Upon execution, it automatically initializes the database via the `initialize_database()` from `init_db.py`
-- GET `/` route displays the login page by rendering `index.html`
-- POST `/` route processes information from the login form by extracting the username and password from the request. After, it calls `check_password()` to verify the credentials of the user. If the authentication is successful, the application renders `home.html`. Otherwise, it renders `index.html` again but with an error message
-- **Password Verification**: Implemented as a helper function called `check_password()`. The function hashes the user's inputted password and checks it against the stored value in the SQLite database
-2. `init_db.py`
-- This file is responsible for setting up and populating the database of our application. It contains all the code and functions necessary to create tables and load data from the CSV files
-- **Creating Tables**: The `create_tables()` function creates several tables (e.g. Users, Address, Buyers, PaymentDetails, etc.) using SQL commands
-- **Populating Tables**: Imports data into tables from various CSV files using `populate_table_from_csv()`. Calls specific transformation functions to convert CSV row data into the correct format before inserting into the respective table
-- Helper functions were also implemented to accommodate the database initialization process. `hash_password()` encrypts user passwords using SHA-256. There are multiple transformation functions that adjust the CSV data to match the database schema. Last, we had a helper function that handles parent-child relationships between different categories
-3. `index.htnml`
-- Login page of the application where users input their username and password
-- Provides a login form with fields for username and password and uses the POST method to send login data to the server
-- Contains a section that displays an error mesage when the credentials don't match what is stored in the database
-4. `home.html`
-- Serves as a simple confirmation page that is displayed upon successfully logging in
+___
 
-## Testing
-To test a failed login, we used...
-- **Username**: sherryzhang@gmail.com
-- **Password**: bye
-  
-To test a successful login, we used...
-- **Username**: sherryzhang@gmail.com
-- **Password**: hello
+## Directory Structure/File Organization
+
+```plaintext
+NittanyBusiness/
+├── app.py
+├── init_db.py
+├── database.db
+└── templates/
+    ├── category.html
+    ├── edit_product.html
+    ├── email_change_request.html
+    ├── email_change_success.html
+    ├── home.html
+    ├── index.html
+    ├── new_product.html
+    ├── order_complete.html
+    ├── order_detail.html
+    ├── order_review.html
+    ├── orders.html
+    ├── payment.html
+    ├── product_detail.html
+    ├── products.html
+    ├── registration.html
+    ├── review.html
+    ├── search_results.html
+    ├── seller_feedback.html
+    ├── seller_products.html
+    └── user_profile.html
+```
+
+The files in our app are organized with the following logic: 
+At the top level, we have all of our business logic in `app.py`. 
+This file contains the routines that sit between the front end
+(`.html` files in `templates`) and the backend of our application
+(the database, `database.db`). The main application logic defined 
+here allows us to give users permissioned
+access to retrieve and send data to and from the database. The logic 
+to initialize the database is contained within `init_db.py`, which
+contains all `CREATE TABLE` statements and fills the database according
+to the provided csv files. In the `templates` directory, we have the html
+files for the frontend of our application, outlining the visual user
+experience and containing forms that hold data for our business logic
+in `app.py` to use in order to query 
+and display information to and from the database.
+
+___
+
+## Implemented Features and Functionalities
+For this application, we implemented the following 8 core features as outlined in the assignment description (no extra credit features): 
+1. **User Login**  
+   - Secure authentication by email & password (hashed in the database).  
+   - Role detection (Buyer, Seller, HelpDesk) on login.  
+   - Redirection to a role-specific welcome/dashboard page.  
+     - *Buyer*: manage profile, browse categories/products, shopping cart, place orders.  
+     - *Seller*: view/edit published products, manage inventory, read buyer feedback.  
+     - *HelpDesk*: view & claim pending requests (e.g., category-creation, email-change), manage users.
+
+2. **Category Hierarchy**  
+   - Dynamic retrieval of “All” → subcategories → products from the database.  
+   - Clickable navigation: drilling into subcategories and viewing associated products.  
+   - Product links lead to detailed pages (price, seller info, reviews & ratings).  
+   - Implementation note: categories and their tree structure are queried on demand, not hard-coded.
+
+3. **Product Listing Management**  
+   - Sellers can create a listing by providing title, description, category, price & quantity.  
+   - Listings default to **active**; sellers can edit details or mark them **inactive**.  
+   - Inventory depletion automatically flags listings as **sold** when quantity reaches zero.  
+   - Historical records retained in the database even after deactivation.
+
+4. **Order Management**  
+   - Buyers select quantity on the product page, review order summary (item, seller, unit price, total).  
+   - Secure checkout with new or saved credit-card details.  
+   - On confirmation:  
+     - Inventory updated and status toggled to **sold** if depleted.  
+     - Seller’s account balance credited with the order total.
+
+5. **Product & Seller Review**  
+   - Post-purchase, buyers can submit a ★1–5 rating and textual review.  
+   - Ratings update the seller’s average score, visible on product pages and confirmations.
+
+6. **Product Search**  
+   - Keyword search over product title, description, category, or seller name.  
+   - Optional price-range filtering.  
+   - Results display name, price, seller info, and availability.  
+   - Implemented via SQL queries—no external search libraries.
+
+7. **User Registration**  
+   - Self-service sign-up for Buyers and Sellers 
+   - Capture role and essential personal details for authentication and profile management.
+
+8. **User Profile Update**  
+   - Logged-in users can update personal details (name, address, etc.) 
+   - Customers can also update their email (user ID) by submitting a request to the helpdesk.
+
+---
+
 
 ## How to Run
 1. Open PyCharm and select 'Import Project' or 'Open' to load this folder
