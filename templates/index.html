@@ -7,34 +7,39 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>NittanyBusiness</title>
 </head>
-<body>
-<div class="container-sm">
-    <div class="card-body" align="center">
-        <h1>Nittany Business</h1>
-        <div>
-            {# Login form where user can type in their username and password #}
-            <form action="/" method="POST">
-                <h2>Login</h2>
-                <label for="username">Username: </label>
-                <input type="text" id="username" name="username"><br><br>
-                <label for="password">Password: </label>
-                <input type="password" id="password" name="password"><br><br>
-                <button type="submit" class="btn btn-success" id="loginButton" style="background-color:cornflowerblue; border: None">
-                    LOGIN
-                </button>
-            </form>
-            <br>
-            {# User registration for those without an account#}
-            <p>Don't have an account?</p>
-            <a href="/registration" class="btn btn-outline-primary">Sign Up</a>
-
-            {# Output an error message when user inputs the wrong username and/or password #}
-            {%  if message %}
-                <p style="color: red; margin-top: 10px">{{ message | safe }}</p>
-            {% endif %}
+<body class="bg-light">
+  <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%;">
+      <div class="card-body">
+        <h1 class="card-title text-center mb-4">NittanyBusiness</h1>
+        <!-- Login Form -->
+        <form action="/" method="POST">
+          <h2 class="h5 text-center mb-3">Login</h2>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">LOGIN</button>
+        </form>
+        <hr>
+        <!-- Registration Link -->
+        <p class="text-center mb-2">Don't have an account?</p>
+        <div class="text-center">
+          <a href="/registration" class="btn btn-outline-secondary">Sign Up</a>
         </div>
+        <!-- Error Message -->
+        {% if message %}
+          <div class="alert alert-danger mt-3" role="alert">
+            {{ message | safe }}
+          </div>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
