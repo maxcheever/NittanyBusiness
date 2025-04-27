@@ -91,11 +91,14 @@
         <div id="product-list">
           <h4>All Products</h4>
           {% for product in products %}
-            <div class="product-card">
-              <h5>{{ product.title }}</h5>
-              <p><strong>Price:</strong> ${{ product.price }}</p>
-              <p><strong>Seller ID:</strong> {{ product.seller_id }}</p>
-            </div>
+              <a href="{{ url_for('view_product', product_id=product.product_id) }}"
+                 class="text-decoration-none text-dark">
+                <div class="product-card">
+                  <h5>{{ product.title }}</h5>
+                  <p><strong>Price:</strong> ${{ product.price }}</p>
+                  <p><strong>Seller ID:</strong> {{ product.seller_id }}</p>
+                </div>
+              </a>
           {% endfor %}
         </div>
       </div>

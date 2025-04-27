@@ -61,7 +61,7 @@ def profile():
     If the request method == POST:
         — Updates the user's name, phone number, and password (if applicable) in the database baed on inputted form data
         — Updates the session with the new name
-        — Refetches updated user information to display
+        — Re-fetches updated user information to display
         — Renders the user profile page with a success message upon saving changes
     If the request method == GET:
         — Retrieve the user's information (user ID, name, phone) from the database
@@ -207,11 +207,13 @@ def get_products_by_category(category_id):
     html = f"<h4>{category_name} Products</h4>"
     for p in products:
         html += f"""
+          <a href="/products/view/{p['product_id']}" class="text-decoration-none text-dark">
             <div class='product-card'>
-                <h5>{p['title']}</h5>
-                <p><strong>Price:</strong> ${p['price']}</p>
-                <p><strong>Seller ID:</strong> {p['seller_id']}</p>
+              <h5>{p['title']}</h5>
+              <p><strong>Price:</strong> ${p['price']}</p>
+              <p><strong>Seller ID:</strong> {p['seller_id']}</p>
             </div>
+          </a>
         """
     return html
 
