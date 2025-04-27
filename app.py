@@ -68,9 +68,6 @@ def profile():
         — Displays user profile page populated with the current user information
 
     Redirects to the login page if the user is not logged in
-
-    Returns:
-        Rendered HTML page (user_profile.html)
     '''
     # Redirect to login page if user is not logged in
     if not session.get('logged_in'):
@@ -109,6 +106,53 @@ def profile():
         user = cur.fetchone()
         conn.close()
         return render_template('user_profile.html', user=user, user_type=session['user_type'])
+
+@app.route('/email-change-request', methods=['GET', 'POST'])
+def request_email_change():
+    '''
+    Handles email change requests for Buyer and Seller
+
+    If the request method == POST:
+        — Valid that the user is logged in and is a Buyer or Seller
+        — Retrieve new email and reason from the form
+        — Insert new HelpDesk record into the database
+        — Redirect to a success page upon successful submission. Otherwise, redirect to the request form
+    If request method == GET:
+        — Render the email change request form
+    '''
+    if not session.get('logged_in') or session.get('user_type') not in ('Buyer', 'Seller'):
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        new_email = request.form['new_email']
+        reason = request.form['reason']
+
+        conn = sql.connect('database.db')
+        cur = conn.cursor()
+
+        try:
+            # Insert the new HelpDesk request into the database
+            cur.execute(
+                ''' INSERT INTO HelpDesk(requester_id, helpdesk_staff_email, request_type, details, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)''',
+                (session['user_id'], 'helpdeskteam@nittybiz.com', 'ChangeID',
+                 f"New email: {new_email}. Reason: {reason}", 0, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('email_change_success'))
+
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            return redirect(url_for('request_email_change'))
+
+    # GET
+    return render_template('email_change_request.html', user_type=session['user_type'])
+
+@app.route('/email-change-success')
+def email_change_success():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_template('email_change_success.html', user_type=session['user_type'])
 
 @app.route('/products')
 def view_products():

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Email Change Request Sent</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        crossorigin="anonymous">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/home">NittanyBusiness</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
+          {% if user_type == 'Buyer' %}
+            <li class="nav-item"><a class="nav-link active" href="/buyer/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
+            <li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+          {% elif user_type == 'Seller' %}
+            <li class="nav-item"><a class="nav-link active" href="/seller/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/products">My Products</a></li>
+            <li class="nav-item"><a class="nav-link" href="/seller/feedback">Feedback</a></li>
+          {% elif user_type == 'HelpDesk' %}
+            <li class="nav-item"><a class="nav-link active" href="/helpdesk/profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/requests">Requests</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/users">User Mgmt</a></li>
+            <li class="nav-item"><a class="nav-link" href="/helpdesk/admin">Admin</a></li>
+          {% endif %}
+        </ul>
+        <a href="/logout" class="btn btn-outline-danger ml-3">Log Out</a>
+      </div>
+    </div>
+  </nav>
+  <div class="container mt-5">
+    <div class="card p-4">
+      <h3 class="card-title">Request Submitted</h3>
+      <p class="card-text">
+        Your request to change your email has been sent to the HelpDesk team.
+        You will be notified once it’s processed.
+      </p>
+      <a href="{{ url_for('profile') }}" class="btn btn-primary">
+        Back to Profile
+      </a>
+    </div>
+  </div>
+</body>
+</html>
