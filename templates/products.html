@@ -89,7 +89,6 @@
       <div class="col-md-9">
         <h4 id="product-title">All Products</h4>
         <div id="product-list">
-          <h4>All Products</h4>
           {% for product in products %}
               <a href="{{ url_for('view_product', product_id=product.product_id) }}"
                  class="text-decoration-none text-dark">
