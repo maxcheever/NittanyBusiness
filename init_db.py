@@ -153,7 +153,7 @@ def create_tables():
     # Table 7: Product (Listings)
     cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Product (
-                    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_id INTEGER PRIMARY KEY,
                     title VARCHAR(255) NOT NULL,
                     details TEXT NOT NULL,
                     price REAL NOT NULL CHECK (price > 0),
@@ -369,6 +369,7 @@ def transform_product_row(row):
     Expected CSV columns: Seller_Email, Listing_ID, Category, Product_Title, Product_Name, Product_Description, Quantity, Product.
     Uses Listing_ID as product_id.
     """
+    product_id = int(row[1].strip())
     title = row[3].strip()
     details = row[5].strip()
     price = float(row[7].strip()[1:].replace(',', ''))
@@ -377,7 +378,7 @@ def transform_product_row(row):
     category = row[2].strip()
     status = 1
     created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return [None, title, details, price, quantity,
+    return [product_id, title, details, price, quantity,
             seller_id, category, status, created_at]
 
 def transform_review_row(row):
