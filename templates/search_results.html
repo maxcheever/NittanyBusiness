@@ -57,13 +57,15 @@
     <h3>Search Results for "{{ query }}"</h3>
     {% if results %}
       {% for p in results %}
-        <div class="product-card">
-          <h5>{{ p['title'] }}</h5>
-          <p><strong>Price:</strong> ${{ p['price'] }}</p>
-          <p><strong>Seller ID:</strong> {{ p['seller_id'] }}</p>
-          <p><strong>Category:</strong> {{ p['category'] }}</p>
-          <p><strong>Available:</strong> {{ "Yes" if p['quantity'] > 0 else "Out of stock" }}</p>
-        </div>
+          <a href="{{ url_for('view_product', product_id=p['product_id']) }}" class="text-decoration-none text-dark">
+              <div class="product-card">
+                  <h5>{{ p['title'] }}</h5>
+                  <p><strong>Price:</strong> ${{ p['price'] }}</p>
+                  <p><strong>Seller ID:</strong> {{ p['seller_id'] }}</p>
+                  <p><strong>Category:</strong> {{ p['category'] }}</p>
+                  <p><strong>Available:</strong> {{ "Yes" if p['quantity'] > 0 else "Out of stock" }}</p>
+              </div>
+          </a>
       {% endfor %}
     {% else %}
       <p>No matching products found.</p>

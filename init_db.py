@@ -24,7 +24,7 @@ def initialize_database():
     populate_table_from_csv('Reviews', './NittanyBusinessDataset_v3/Reviews.csv', transform_func=transform_review_row)
     populate_table_from_csv('Orders', './NittanyBusinessDataset_v3/Orders.csv', transform_func=transform_order_row)
     populate_category_hierarchy('./NittanyBusinessDataset_v3/Categories.csv') # doing this differently since it requires going back through table
-
+    update_seller_avg_ratings()
 
 ########## CREATE TABLES ##########
 
@@ -435,5 +435,20 @@ def populate_category_hierarchy(csv_file):
                 category_id = category_map[category_name]
                 cursor.execute('UPDATE CategoryHierarchy SET parent_category = ? WHERE category_id = ?',
                                (parent_id, category_id))
+    connection.commit()
+    connection.close()
+
+def update_seller_avg_ratings():
+    connection = sql.connect('database.db')
+    cursor = connection.cursor()
+    cursor.execute('''
+        UPDATE Sellers
+        SET avg_rating = COALESCE((
+            SELECT AVG(r.rating)
+            FROM Reviews r
+            JOIN Orders o ON r.order_id = o.order_id
+            WHERE o.seller_id = Sellers.user_id
+        ), 0)
+    ''')
     connection.commit()
     connection.close()
